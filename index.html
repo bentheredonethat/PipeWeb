@@ -3,11 +3,27 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 <script type="text/javascript" src="pipeweb.js"></script>
+<script type="text/javascript">
+	var cycleCounter = 1;
+	// collection of stages
+	var stages= {
+		"IF" : null,
+		"ID": null,
+		"EX": null,
+		"MEM": null,
+		"WB": null	
+	};
+	// var dependencies
+	var dependencies = null;
 
+
+
+</script>
 </head>
 <body>
 <table id="myTable" border='1'>
     <tr>
+    	<th>Cycle Number</th>
         <th>IF</th>
         <th>ID</th>
         <th>EX</th>
@@ -19,6 +35,8 @@
 
 <input type="text" id="myText" value="$AND $t0 $v0 $sp">
 <button onclick="myCreateFunction()">Generate Next Cycle</button>
+
+
 
 
 </body>
