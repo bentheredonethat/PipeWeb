@@ -3,7 +3,7 @@
 // 1 cycle has:
 // --up to to five instructions
 // --possibly some dependencies
-var Cycle = function(stages, dependencies){
+var Pipeline = function(stages, dependencies){
 	this.IF = stages['IF'];
 	this.ID = stages['ID'];
 	this.EX = stages['EX'];
@@ -56,14 +56,31 @@ var stages= {
 var dependencies = null;
 
 // start cycle
-var start = new Cycle(stages, dependencies,cycleCounter);
+var pipe = new Pipeline(stages, dependencies,cycleCounter);
+
+var KeepGoing = 0;
+$.each(stages, function(index, value){
+	if (typeof value != null){
+		alert(value);
+		KeepGoing = 1;
+	}
+});
 
 // Add some text to the new cells:
-cell1.innerHTML = start.IF.operation;
-cell2.innerHTML = "NEW CELL2";
-cell3.innerHTML = "NEW CELL3";
-cell4.innerHTML = "NEW CELL4";
-cell5.innerHTML = "NEW CELL5";
+cell1.innerHTML =  null != pipe.IF ? pipe.IF.operation:"";
+cell2.innerHTML =  null != pipe.ID ? pipe.ID.operation:"";
+cell3.innerHTML =  null != pipe.EX ? pipe.EX.operation:"";
+cell4.innerHTML =  null != pipe.MEM? pipe.MEM.operation:"";
+cell5.innerHTML =  null != pipe.WB ? pipe.WB.operation:"";
+
+// move each stage
+stages["WB"] = stages["MEM"];
+stages["MEM"] = stages["EX"];
+stages["EX"] = stages["ID"];
+stages["ID"] = stages["IF"];
+stages["ID"] = null;
+
+
 }
 
 
