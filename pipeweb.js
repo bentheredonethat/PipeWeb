@@ -17,9 +17,11 @@ var Cycle = function(stages, dependencies){
 // -- a format
 // -- some registers associated with fields (rs, rt, etc.)
 // -- register operation 
-var Instruction = function(instruction, registers){
+var Instruction = function(instruction, registers, stage, num){
+	this.num = num;
 	this.registers= registers;
 	this.operation = instruction;
+	this.stage = stage;
 };
 
 
@@ -36,12 +38,28 @@ var cell4 = row.insertCell(3);
 var cell5 = row.insertCell(4);
 
 var input = document.getElementById("myText").value;
+
+var cycleCounter = 1;
 var inputArray = input.split(" ");
-var Instr1 = new Instruction(inputArray[0],inputArray.shift());
-alert(Instr1.operation);
+var Instr1 = new Instruction(inputArray[0],inputArray.shift(), "pre", cycleCounter);
+
+// collection of stages
+var stages= {
+	"IF" : Instr1,
+	"ID": null,
+	"EX": null,
+	"MEM": null,
+	"WB": null	
+};
+
+// var dependencies
+var dependencies = null;
+
+// start cycle
+var start = new Cycle(stages, dependencies,cycleCounter);
 
 // Add some text to the new cells:
-cell1.innerHTML = Instr1.operation;
+cell1.innerHTML = start.IF.operation;
 cell2.innerHTML = "NEW CELL2";
 cell3.innerHTML = "NEW CELL3";
 cell4.innerHTML = "NEW CELL4";
