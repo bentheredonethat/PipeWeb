@@ -16,6 +16,7 @@ cell4.innerHTML = "NEW CELL4";
 cell5.innerHTML = "NEW CELL5";
 }
 
-function doFunction(){
-    alert('clicked');
+function doFunction(String){
+        var input = document.getElementById("myText").value;
+        alert(input);
 }
