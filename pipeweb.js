@@ -3,49 +3,25 @@
 // 1 cycle has:
 // --up to to five instructions
 // --possibly some dependencies
-function Cycle(){
-	this.dependencies = {};
-	this.IF = null;
-	this.ID = null;
-	this.EX = null;
-	this.MEM = null;
-	this.WB = null;
-	Cycle.prototype.constructor = function(stages, dependencies){
-		IF = stages['IF'];
-		ID = stages['ID'];
-		EX = stages['EX'];
-		MEM = stages['MEM'];
-		WB = stages['WB'];
-		this.dependencies = dependencies;
-	};
+var Cycle = function(stages, dependencies){
+	this.IF = stages['IF'];
+	this.ID = stages['ID'];
+	this.EX = stages['EX'];
+	this.MEM = stages['MEM'];
+	this.WB = stages['WB'];
+	this.dependencies = dependencies;
+	
 };
 
 // 1 instruction  has:
 // -- a format
 // -- some registers associated with fields (rs, rt, etc.)
 // -- register operation 
-function Instruction(){
-	this.format = null;
-	this.registers= {};
-	this.operation = null;
-	Instruction.prototype.constructor = function(format, registers, operation){
-		this.format = format;
-		this.registers = registers;
-		this.operation = operation;
-	};
+var Instruction = function(instruction, registers){
+	this.registers= registers;
+	this.operation = instruction;
 };
 
-// 1 register has:
-// -- name associated with value
-// -- e.g. "$zero" : 0
-function Register(){
-	this.name = null;
-	this.value = null;
-    Register.prototype.constructor = function(name, value){
-    	this.name = name;
-    	this.value = value;
-    };
-};
 
 
 
@@ -59,16 +35,17 @@ var cell3 = row.insertCell(2);
 var cell4 = row.insertCell(3);
 var cell5 = row.insertCell(4);
 
+var input = document.getElementById("myText").value;
+var inputArray = input.split(" ");
+var Instr1 = new Instruction(inputArray[0],inputArray.shift());
+alert(Instr1.operation);
+
 // Add some text to the new cells:
-cell1.innerHTML = "NEW CELL1";
+cell1.innerHTML = Instr1.operation;
 cell2.innerHTML = "NEW CELL2";
 cell3.innerHTML = "NEW CELL3";
 cell4.innerHTML = "NEW CELL4";
 cell5.innerHTML = "NEW CELL5";
-
-
-var input = document.getElementById("myText").value;
-        alert(input);
 }
 
 
