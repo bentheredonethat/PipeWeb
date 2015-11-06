@@ -24,6 +24,29 @@ var Instruction = function(instruction, registers, stage, num){
 	this.stage = stage;
 };
 
+// for list of dependencies
+var DataDependency =function(reg, stage){
+	this.reg = reg;
+	this.stage = stage;
+}
+
+function calculateNewDependencies(newInstruction, oldDependencies){
+// check if any of the registers in the new instruction
+// are nearby in old dependencies
+
+
+// list of booleans for each potentially new register
+// to put in dependencies list
+var potentialNewDependencies = [];
+newInstruction.registers.forEach(function(current){
+	potentialNewDependencies.push(0);
+});
+
+// check if any registers in new Instr. are in oldDep, so as not to add them
+
+
+}
+
 function calculateNewCycle(newInstruction, oldDependencies ){
 
 		// collection of new stages
