@@ -1,4 +1,14 @@
+//TODO
+//Create Map for instruction to format
+//Create logic given an instruction using the maps update the chart to the correct
+//cycle has stages and dependency update both
+//
+
 // structure of objects
+var InstructionMap = {"ADD": 'R', "LW": 'Load', "SW": "Store"};
+//Given a reg it will show if and when it's available
+var DepChart = {"$t0": null, "$t1": null, "$t2": null, "$t3": null, "$t4": null, "$t5": null,
+	"$t6": null, "$t7": null, "$": null};
 
 // 1 cycle has:
 // --up to to five instructions
@@ -28,11 +38,22 @@ var Instruction = function(instruction, registers, stage, num){
 var DataDependency =function(reg, stage){
 	this.reg = reg;
 	this.stage = stage;
-}
+};
 
-function calculateNewDependencies(newInstruction, oldDependencies){
+function calculateNewDependencies(newInstruction, oldDependencies, stages){
 // check if any of the registers in the new instruction
 // are nearby in old dependencies
+	newInstruction.registers.forEach(function(reg){
+		// check if this reg is available
+		if (DepChart[reg]== null){
+			DepChart[reg] = 'IF';
+		}
+		//now we know the reg is not available
+		//stage IF stays the same because IF is not available
+		else{
+
+		}
+	});
 
 
 // list of booleans for each potentially new register
