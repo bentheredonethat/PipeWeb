@@ -5,26 +5,22 @@
 // 1 cycle has:
 // --up to to five instructions
 // --possibly some dependencies
-var Pipeline = function(stages, dependencies){
+var Pipeline = function(stages){
 	this.IF = stages['IF'];
 	this.ID = stages['ID'];
 	this.EX = stages['EX'];
 	this.MEM = stages['MEM'];
 	this.WB = stages['WB'];
-	this.dependencies = dependencies;
-	this.queue = null;
-	
+	this.queue = null;	
 };
 
 // 1 instruction  has:
 // -- a format
 // -- some registers associated with fields (rs, rt, etc.)
 // -- register type -s arithmetic/load/store etc. 
-var Instruction = function(format, registers, stage, num){
-	this.num = num;
+var Instruction = function(format, registers){
+	this.operation = format;
 	this.registers= registers;
-	this.format = format;
-	this.stage = stage;
 };
 
 // for list of dependencies
@@ -88,15 +84,13 @@ function calculateNewCycle(newInstruction ){
 				RegChart[reg] = 0;
 			});
 		}
-		// make WB available
-		StageAvailable["WB"] = 0;
-
+		
 		//HANDLING MEM -> WB
 		// wb never stalls, so mem never stalls :)
 
 		// update stage table
-		StageAvailable["WB"] = 1;
-		StageAvailable["MEM"] = 0;				
+		StageAvailable["WB"] = StageAvailable["MEM"];
+		 
 
 		
 
@@ -127,8 +121,7 @@ function calculateNewCycle(newInstruction ){
 			}
 		}
 		// 	so now we update stage table
-		StageAvailable["MEM"] = 1;
-		StageAvailable["EX"] = 0;
+		StageAvailable["MEM"] = StageAvailable["EX"];
 		// is mem available? if not stay in EX
 
 
@@ -151,8 +144,8 @@ function calculateNewCycle(newInstruction ){
 			}
 		}
 		//		update stage table
-		StageAvailable["EX"] = 1;
-		StageAvailable["ID"] = 0;
+		StageAvailable["EX"] = StageAvailable["ID"];
+		
 
 		// move ID -> EX
 		if (okToMove){
@@ -162,22 +155,21 @@ function calculateNewCycle(newInstruction ){
 
 		// moving from IF to ID
 
-			if (newStages["WB"] != null){
-			stages["IF"].forEach(function(reg){
-				if (RegChart[reg] == 1){
+			if (newStages["ID"] != null){
+				stages["IF"].forEach(function(reg){
+					if (RegChart[reg] == 1){
+						okToMove = false;
+					}
+				});
+				if (StageAvailable["ID"] == 1){
 					okToMove = false;
 				}
-			});
-			if (StageAvailable["ID"] == 1){
-				okToMove = false;
+				if (StageAvailable["IF"] == 1){
+					okToMove = false;
+				}
 			}
-			if (okToMove){
-				newStages["ID"] = stages["IF"];	
-			}
-			
-			if (StageAvailable["IF"] == 1){
-				okToMove = false;
-			}
+		if (okToMove){
+			newStages["ID"] = stages["IF"];	
 		}
 
 		if (okToMove){
@@ -224,7 +216,7 @@ function myCreateFunction() {
 
 		cycleCounter  +=1;
 		var inputArray = input.split(" ");
-		var Instr1 = new Instruction(inputArray[0],inputArray.shift(), "pre", cycleCounter);
+		var Instr1 = new Instruction(inputArray[0],inputArray);
 
 		var pipe = calculateNewCycle(Instr1, dependencies);
 
