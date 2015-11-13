@@ -1,5 +1,7 @@
 // structure of objects
 
+
+
 // 1 cycle has:
 // --up to to five instructions
 // --possibly some dependencies
@@ -10,17 +12,18 @@ var Pipeline = function(stages, dependencies){
 	this.MEM = stages['MEM'];
 	this.WB = stages['WB'];
 	this.dependencies = dependencies;
+	this.queue = null;
 	
 };
 
 // 1 instruction  has:
 // -- a format
 // -- some registers associated with fields (rs, rt, etc.)
-// -- register operation 
-var Instruction = function(instruction, registers, stage, num){
+// -- register type -s arithmetic/load/store etc. 
+var Instruction = function(format, registers, stage, num){
 	this.num = num;
 	this.registers= registers;
-	this.operation = instruction;
+	this.format = format;
 	this.stage = stage;
 };
 
@@ -30,9 +33,16 @@ var DataDependency =function(reg, stage){
 	this.stage = stage;
 }
 
+var InstrFormatMap = {
+
+};
+
+
 function calculateNewDependencies(newInstruction, oldDependencies){
 // check if any of the registers in the new instruction
 // are nearby in old dependencies
+
+var newDependencies = [];
 
 
 // list of booleans for each potentially new register
@@ -45,27 +55,155 @@ newInstruction.registers.forEach(function(current){
 // check if any registers in new Instr. are in oldDep, so as not to add them
 
 
+
+return newDependencies;
 }
 
-function calculateNewCycle(newInstruction, oldDependencies ){
+// 0 is available 1 is occupied
+var StageAvailable = { "IF":0, "ID":0, "EX":0, "MEM":0, "WB":0}
+
+// 0 is available, 1 is occupied
+var RegChart = {
+	"$t0": 0, "$t1": 0, "$t2": 0, "$t3": 0, "$t4": 0, "$t5": 0,
+	"$t6": 0, "$t7": 0, "$t8": 0, "$t9": 0, "$s0": 0, "$s1": 0,
+	"$s2": 0, "$s3": 0, "$s4": 0, "$s5": 0, "$s6": 0, "$s7": 0,"$s8": 0, "$s9": 0};
+
+// have this include more instructions
+var InstructionMap = {"ADD": 'R', "LW": 'Load', "SW": "Store"};
+
+
+// each instruction has registers available in mem or wb, depending on their format
+var FormatDetailMap = { "ARITHMETIC":"wb", "load":"wb","Store":"mem"};
+
+function calculateNewCycle(newInstruction ){
 
 		// collection of new stages
-		var newStage = stages;
+		var newStages = stages;
 
-		// TO DO update stages according to dependencies from last cycle
 
-		// move stages
-		newStage["WB"] = stages["MEM"];
-		newStage["MEM"] = stages["EX"];
-		newStage["EX"] = stages["ID"];
-		newStage["ID"] = stages["IF"];
-		newStage["IF"] = newInstruction;
+		// HANDLING WB
+		// make each register now available
+		if (newStages["WB"] != null){
+			newStages["WB"].registers.forEach(function(reg){
+				RegChart[reg] = 0;
+			});
+		}
+		// make WB available
+		StageAvailable["WB"] = 0;
 
-		// update dependencies
-		var newDependencies = oldDependencies;
-		// TO DO update new dependencies from old dependencies
+		//HANDLING MEM -> WB
+		// wb never stalls, so mem never stalls :)
 
-		return new Pipeline(newStage, newDependencies);
+		// update stage table
+		StageAvailable["WB"] = 1;
+		StageAvailable["MEM"] = 0;				
+
+		
+
+		// if store format now in wb, then update destination register in reg table
+		if (newStages["MEM"] != null){
+			if (InstructionMap[newStages["MEM"].format] == 'mem'){
+				newStages["MEM"].registers.forEach(function(reg){
+				RegChart[reg] = 0;
+			});
+			}
+		}
+
+		newStages["WB"] = stages["MEM"]; 
+
+
+		// check if:
+		//		the registers in EX are available		
+		var okToMove = true;
+		if (newStages["EX"] != null){
+			stages["EX"].forEach(function(reg){
+				if (RegChart[reg] == 1){
+					okToMove = false;
+				}
+			});
+			//		EX as a stage is available
+			if (StageAvailable["MEM"] == 1){
+				okToMove = false;
+			}
+		}
+		// 	so now we update stage table
+		StageAvailable["MEM"] = 1;
+		StageAvailable["EX"] = 0;
+		// is mem available? if not stay in EX
+
+
+		//  move from EX -> MEM
+		if (okToMove == true){
+			newStages["MEM"] = stages["EX"];
+		}
+
+		if (newStages["ID"] != null){
+			// check if:
+			// 		registers are avaible
+			stages["ID"].forEach(function(reg){
+				if (RegChart[reg] == 1){
+					okToMove = false;
+				}
+			});
+			//		EX is avilable
+			if (StageAvailable["EX"] == 1){
+				okToMove = false;
+			}
+		}
+		//		update stage table
+		StageAvailable["EX"] = 1;
+		StageAvailable["ID"] = 0;
+
+		// move ID -> EX
+		if (okToMove){
+			newStages["EX"] = stages["ID"];
+		}
+
+
+		// moving from IF to ID
+
+			if (newStages["WB"] != null){
+			stages["IF"].forEach(function(reg){
+				if (RegChart[reg] == 1){
+					okToMove = false;
+				}
+			});
+			if (StageAvailable["ID"] == 1){
+				okToMove = false;
+			}
+			if (okToMove){
+				newStages["ID"] = stages["IF"];	
+			}
+			
+			if (StageAvailable["IF"] == 1){
+				okToMove = false;
+			}
+		}
+
+		if (okToMove){
+			// if there are instructions waiting then:
+			if (pipelineQueue.length > 0){
+				// put new instruction into pipeline	
+				newStages["IF"] = pipelineQueue[0];
+				
+				// then pop
+				delete pipelineQueue[0];
+				
+			}
+			else{
+				newStages["IF"] = newInstruction;	
+			}
+		}
+		else{
+			pipelineQueue.push(stages["IF"]);	
+		}
+
+
+
+
+		
+
+		return new Pipeline(newStages);
 
 }
 
