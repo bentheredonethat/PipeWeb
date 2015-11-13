@@ -110,7 +110,7 @@ function calculateNewCycle(newInstruction ){
 		//		the registers in EX are available		
 		var okToMove = true;
 		if (newStages["EX"] != null){
-			stages["EX"].forEach(function(reg){
+			stages["EX"].registers.forEach(function(reg){
 				if (RegChart[reg] == 1){
 					okToMove = false;
 				}
@@ -133,7 +133,7 @@ function calculateNewCycle(newInstruction ){
 		if (newStages["ID"] != null){
 			// check if:
 			// 		registers are avaible
-			stages["ID"].forEach(function(reg){
+			stages["ID"].registers.forEach(function(reg){
 				if (RegChart[reg] == 1){
 					okToMove = false;
 				}
@@ -155,8 +155,8 @@ function calculateNewCycle(newInstruction ){
 
 		// moving from IF to ID
 
-			if (newStages["ID"] != null){
-				stages["IF"].forEach(function(reg){
+			if (newStages["IF"] != null){
+				newStages["IF"].registers.forEach(function(reg){
 					if (RegChart[reg] == 1){
 						okToMove = false;
 					}
