@@ -71,6 +71,17 @@ var InstructionMap = {"ADD": 'R', "LW": 'Load', "SW": "Store"};
 // each instruction has registers available in mem or wb, depending on their format
 var FormatDetailMap = { "ARITHMETIC":"wb", "load":"wb","Store":"mem"};
 
+var IFtoID = function(){
+	if (okToMove == true){
+				newStages["ID"] = stages["IF"];	
+				if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
+					StageAvailable["IF"] = 0
+					StageAvailable["ID"] = 1	
+				}
+				
+			}
+}
+
 function calculateNewCycle(newInstruction ){
 
 		// collection of new stages
@@ -175,6 +186,8 @@ function calculateNewCycle(newInstruction ){
 				// 	okToMove = false;
 				// }
 			}
+			IFtoID();
+			/*
 			if (okToMove == true){
 				newStages["ID"] = stages["IF"];	
 				if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
@@ -182,7 +195,7 @@ function calculateNewCycle(newInstruction ){
 					StageAvailable["ID"] = 1	
 				}
 				
-			}
+			}*/
 
 		
 		// if there are instructions waiting then:
