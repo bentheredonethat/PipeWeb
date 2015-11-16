@@ -65,7 +65,7 @@ var RegChart = {
 	"$s2": 0, "$s3": 0, "$s4": 0, "$s5": 0, "$s6": 0, "$s7": 0,"$s8": 0, "$s9": 0};
 
 // have this include more instructions
-var InstructionMap = {"ADD": 'R', "LW": 'Load', "SW": "Store"};
+var InstructionMap = {"ADD": 'R', "LW": 'load', "SW": "Store"};
 
 
 // each instruction has registers available in mem or wb, depending on their format
@@ -78,6 +78,7 @@ var IFtoID = function(newStages){
 		StageAvailable["ID"] = 1	
 		newStages["ID"] = stages["IF"];		
 	}
+	
 	return newStages;					
 }
 
@@ -113,8 +114,25 @@ var IDtoEX = function(newStages){
 	// move ID -> EX
 	if (StageAvailable["EX"] == 0){
 		//		update stage table
-		StageAvailable["EX"] = StageAvailable["ID"];
-		newStages["EX"] = stages["ID"];
+
+		// check for lw or sw
+		if (newStages["MEM"] != null){
+			if (FormatDetailMap[ newStages["MEM"].operation] == "wb" || 
+				FormatDetailMap[ newStages["MEM"].operation] == "mem"){
+				
+				StageAvailable["EX"] = StageAvailable["ID"];
+				newStages["EX"] = stages["ID"];
+			}
+		}
+		// mem or wb does not matter
+		else{
+			StageAvailable["EX"] = StageAvailable["ID"];
+			newStages["EX"] = stages["ID"];
+		}
+		
+	}
+	else{
+		newStages["EX"] = null;
 	}
 	return newStages;
 }
@@ -146,22 +164,10 @@ var EXtoMEM = function(newStages){
 			// 	so now we update stage table
 			StageAvailable["MEM"] = StageAvailable["EX"];
 		}
-
-		if (newStages["ID"] != null){
-			// check if:
-			// 		registers are avaible
-			stages["ID"].registers.forEach(function(reg){
-				if (RegChart[reg] == 1){
-					okToMove = false;
-					console.log("stall!");
-				}
-			});
-			//		EX is avilable
-			if (StageAvailable["EX"] == 1){
-				okToMove = false;
-				console.log("stall!");
-			}
+		else{
+			newStages["MEM"] = null;
 		}
+
 		return newStages;
 }
 
@@ -173,17 +179,22 @@ var MEMtoWB = function(newStages, stages){
 	if (newStages["WB"] != null){
 		newStages["WB"].registers.forEach(function(reg){
 			RegChart[reg] = 0;
-		});
+		});	
 	}
-	
+	StageAvailable["WB"] = 0;
+	if (newStages["WB"] != null){
+	// if the format of the instruction in MEM going to WB is LW or SW
+		if (newStages["WB"].operation == "LW" ||
+			newStages["WB"].operation == "SW"){
+			StageAvailable["EX"] = 0;
+			StageAvailable["MEM"] = 0;
+			StageAvailable["WB"] = 0;
+
+		}
+	}
+
 	//HANDLING MEM -> WB
 	// wb never stalls, so mem never stalls :)
-
-	// update stage table
-	StageAvailable["WB"] = StageAvailable["MEM"];
-	 
-
-	
 
 	// if store format now in wb, then update destination register in reg table
 	if (newStages["MEM"] != null){
