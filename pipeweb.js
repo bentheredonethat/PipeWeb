@@ -120,14 +120,15 @@ function calculateNewCycle(newInstruction ){
 				okToMove = false;
 			}
 		}
-		// 	so now we update stage table
-		StageAvailable["MEM"] = StageAvailable["EX"];
+		
 		// is mem available? if not stay in EX
 
 
 		//  move from EX -> MEM
 		if (okToMove == true){
 			newStages["MEM"] = stages["EX"];
+			// 	so now we update stage table
+			StageAvailable["MEM"] = StageAvailable["EX"];
 		}
 
 		if (newStages["ID"] != null){
@@ -143,12 +144,13 @@ function calculateNewCycle(newInstruction ){
 				okToMove = false;
 			}
 		}
-		//		update stage table
-		StageAvailable["EX"] = StageAvailable["ID"];
+		
 		
 
 		// move ID -> EX
 		if (okToMove){
+			//		update stage table
+			StageAvailable["EX"] = StageAvailable["ID"];
 			newStages["EX"] = stages["ID"];
 		}
 
@@ -168,11 +170,11 @@ function calculateNewCycle(newInstruction ){
 					okToMove = false;
 				}
 			}
-		if (okToMove){
+		
 			newStages["ID"] = stages["IF"];	
 			StageAvailable["IF"] = 0
 			StageAvailable["ID"] = 1
-		}
+		
 
 		
 		// if there are instructions waiting then:
@@ -196,6 +198,9 @@ function calculateNewCycle(newInstruction ){
 			});	
 		}
 		
+		StageAvailable["IF"] = 1
+		
+
 		return new Pipeline(newStages);
 
 }
