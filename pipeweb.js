@@ -113,11 +113,13 @@ function calculateNewCycle(newInstruction ){
 			stages["EX"].registers.forEach(function(reg){
 				if (RegChart[reg] == 1){
 					okToMove = false;
+					alert("stall!");
 				}
 			});
 			//		EX as a stage is available
 			if (StageAvailable["MEM"] == 1){
 				okToMove = false;
+				alert("stall!");
 			}
 		}
 		
@@ -137,11 +139,13 @@ function calculateNewCycle(newInstruction ){
 			stages["ID"].registers.forEach(function(reg){
 				if (RegChart[reg] == 1){
 					okToMove = false;
+					alert("stall!");
 				}
 			});
 			//		EX is avilable
 			if (StageAvailable["EX"] == 1){
 				okToMove = false;
+				alert("stall!");
 			}
 		}
 		
@@ -158,23 +162,27 @@ function calculateNewCycle(newInstruction ){
 		// moving from IF to ID
 
 			if (newStages["IF"] != null){
-				newStages["IF"].registers.forEach(function(reg){
-					if (RegChart[reg] == 1){
-						okToMove = false;
-					}
-				});
+				// newStages["IF"].registers.forEach(function(reg){
+				// 	if (RegChart[reg] == 1){
+				// 		okToMove = false;
+				// 	}
+				// });
 				if (StageAvailable["ID"] == 1){
 					okToMove = false;
+					alert("stall!");
 				}
-				if (StageAvailable["IF"] == 1){
-					okToMove = false;
-				}
+				// if (StageAvailable["IF"] == 1){
+				// 	okToMove = false;
+				// }
 			}
-		
-			newStages["ID"] = stages["IF"];	
-			StageAvailable["IF"] = 0
-			StageAvailable["ID"] = 1
-		
+			if (okToMove == true){
+				newStages["ID"] = stages["IF"];	
+				if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
+					StageAvailable["IF"] = 0
+					StageAvailable["ID"] = 1	
+				}
+				
+			}
 
 		
 		// if there are instructions waiting then:
