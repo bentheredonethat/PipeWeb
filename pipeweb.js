@@ -71,15 +71,54 @@ var InstructionMap = {"ADD": 'R', "LW": 'Load', "SW": "Store"};
 // each instruction has registers available in mem or wb, depending on their format
 var FormatDetailMap = { "ARITHMETIC":"wb", "load":"wb","Store":"mem"};
 
-var IFtoID = function(){
-	if (okToMove == true){
-				newStages["ID"] = stages["IF"];	
-				if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
-					StageAvailable["IF"] = 0
-					StageAvailable["ID"] = 1	
-				}
-				
-			}
+var IFtoID = function(newStages){
+
+	if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
+		StageAvailable["IF"] = 0
+		StageAvailable["ID"] = 1	
+		newStages["ID"] = stages["IF"];		
+	}
+	return newStages;		
+			
+}
+
+
+var toIF = function(newStages, newInstruction){
+	// if there are instructions waiting then:
+	if (pipelineQueue.length > 0){
+		// put new instruction into pipeline	
+		newStages["IF"] = pipelineQueue[0];
+		stages["IF"].registers.forEach(function(reg){
+			RegChart[reg] = 1;
+			
+		});
+	
+		// then pop
+		delete pipelineQueue[0];
+		pipelineQueue.push(newInstruction);	
+	}
+	else{
+		newStages["IF"] = newInstruction;
+		stages["IF"].registers.forEach(function(reg){
+			RegChart[reg] = 1;
+			
+		});	
+	}
+	StageAvailable["IF"] = 1
+
+	return newStages;	
+
+}
+
+
+var IDtoEX = function(newStages){
+	// move ID -> EX
+	if (StageAvailable["EX"] == 0){
+		//		update stage table
+		StageAvailable["EX"] = StageAvailable["ID"];
+		newStages["EX"] = stages["ID"];
+	}
+	return newStages;
 }
 
 function calculateNewCycle(newInstruction ){
@@ -161,65 +200,13 @@ function calculateNewCycle(newInstruction ){
 		}
 		
 		
-
 		// move ID -> EX
-		if (StageAvailable["EX"] == 0){
-			//		update stage table
-			StageAvailable["EX"] = StageAvailable["ID"];
-			newStages["EX"] = stages["ID"];
-		}
-
+		newStages =  IDtoEX(newStages);
 
 		// moving from IF to ID
+		newStages = IFtoID(newStages);
 
-			if (newStages["IF"] != null){
-				// newStages["IF"].registers.forEach(function(reg){
-				// 	if (RegChart[reg] == 1){
-				// 		okToMove = false;
-				// 	}
-				// });
-				if (StageAvailable["ID"] == 1){
-					okToMove = false;
-					console.log("stall!");
-				}
-				// if (StageAvailable["IF"] == 1){
-				// 	okToMove = false;
-				// }
-			}
-			IFtoID();
-			/*
-			if (okToMove == true){
-				newStages["ID"] = stages["IF"];	
-				if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
-					StageAvailable["IF"] = 0
-					StageAvailable["ID"] = 1	
-				}
-				
-			}*/
-
-		
-		// if there are instructions waiting then:
-		if (pipelineQueue.length > 0){
-			// put new instruction into pipeline	
-			newStages["IF"] = pipelineQueue[0];
-			stages["IF"].registers.forEach(function(reg){
-				RegChart[reg] = 1;
-				
-			});
-		
-			// then pop
-			delete pipelineQueue[0];
-			pipelineQueue.push(newInstruction);	
-		}
-		else{
-			newStages["IF"] = newInstruction;
-			stages["IF"].registers.forEach(function(reg){
-				RegChart[reg] = 1;
-				
-			});	
-		}
-		
-		StageAvailable["IF"] = 1
+		newStages = toIF(newStages, newInstruction);
 		
 
 		return new Pipeline(newStages);
