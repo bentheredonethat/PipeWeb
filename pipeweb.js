@@ -113,13 +113,13 @@ function calculateNewCycle(newInstruction ){
 			stages["EX"].registers.forEach(function(reg){
 				if (RegChart[reg] == 1){
 					okToMove = false;
-					alert("stall!");
+					console.log("stall!");
 				}
 			});
 			//		EX as a stage is available
 			if (StageAvailable["MEM"] == 1){
 				okToMove = false;
-				alert("stall!");
+				console.log("stall!");
 			}
 		}
 		
@@ -127,7 +127,7 @@ function calculateNewCycle(newInstruction ){
 
 
 		//  move from EX -> MEM
-		if (okToMove == true){
+		if (StageAvailable["MEM"] == 0){
 			newStages["MEM"] = stages["EX"];
 			// 	so now we update stage table
 			StageAvailable["MEM"] = StageAvailable["EX"];
@@ -139,20 +139,20 @@ function calculateNewCycle(newInstruction ){
 			stages["ID"].registers.forEach(function(reg){
 				if (RegChart[reg] == 1){
 					okToMove = false;
-					alert("stall!");
+					console.log("stall!");
 				}
 			});
 			//		EX is avilable
 			if (StageAvailable["EX"] == 1){
 				okToMove = false;
-				alert("stall!");
+				console.log("stall!");
 			}
 		}
 		
 		
 
 		// move ID -> EX
-		if (okToMove){
+		if (StageAvailable["EX"] == 0){
 			//		update stage table
 			StageAvailable["EX"] = StageAvailable["ID"];
 			newStages["EX"] = stages["ID"];
@@ -169,7 +169,7 @@ function calculateNewCycle(newInstruction ){
 				// });
 				if (StageAvailable["ID"] == 1){
 					okToMove = false;
-					alert("stall!");
+					console.log("stall!");
 				}
 				// if (StageAvailable["IF"] == 1){
 				// 	okToMove = false;
