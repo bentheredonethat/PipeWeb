@@ -78,8 +78,7 @@ var IFtoID = function(newStages){
 		StageAvailable["ID"] = 1	
 		newStages["ID"] = stages["IF"];		
 	}
-	return newStages;		
-			
+	return newStages;					
 }
 
 
@@ -107,7 +106,6 @@ var toIF = function(newStages, newInstruction){
 	StageAvailable["IF"] = 1
 
 	return newStages;	
-
 }
 
 
@@ -121,42 +119,8 @@ var IDtoEX = function(newStages){
 	return newStages;
 }
 
-function calculateNewCycle(newInstruction ){
-
-		// collection of new stages
-		var newStages = stages;
-
-
-		// HANDLING WB
-		// make each register now available
-		if (newStages["WB"] != null){
-			newStages["WB"].registers.forEach(function(reg){
-				RegChart[reg] = 0;
-			});
-		}
-		
-		//HANDLING MEM -> WB
-		// wb never stalls, so mem never stalls :)
-
-		// update stage table
-		StageAvailable["WB"] = StageAvailable["MEM"];
-		 
-
-		
-
-		// if store format now in wb, then update destination register in reg table
-		if (newStages["MEM"] != null){
-			if (InstructionMap[newStages["MEM"].format] == 'mem'){
-				newStages["MEM"].registers.forEach(function(reg){
-				RegChart[reg] = 0;
-			});
-			}
-		}
-
-		newStages["WB"] = stages["MEM"]; 
-
-
-		// check if:
+var EXtoMEM = function(newStages){
+	// check if:
 		//		the registers in EX are available		
 		var okToMove = true;
 		if (newStages["EX"] != null){
@@ -198,7 +162,54 @@ function calculateNewCycle(newInstruction ){
 				console.log("stall!");
 			}
 		}
+		return newStages;
+}
+
+
+var MEMtoWB = function(newStages, stages){
+
+	// HANDLING WB
+	// make each register now available
+	if (newStages["WB"] != null){
+		newStages["WB"].registers.forEach(function(reg){
+			RegChart[reg] = 0;
+		});
+	}
+	
+	//HANDLING MEM -> WB
+	// wb never stalls, so mem never stalls :)
+
+	// update stage table
+	StageAvailable["WB"] = StageAvailable["MEM"];
+	 
+
+	
+
+	// if store format now in wb, then update destination register in reg table
+	if (newStages["MEM"] != null){
+		if (InstructionMap[newStages["MEM"].format] == 'mem'){
+			newStages["MEM"].registers.forEach(function(reg){
+			RegChart[reg] = 0;
+		});
+		}
+	}
+
+	newStages["WB"] = stages["MEM"]; 
+
+	return newStages;
+}
+
+function calculateNewCycle(newInstruction ){
+
+		// collection of new stages
+		var newStages = stages;
+
+
 		
+		newStages = MEMtoWB(newStages, stages);
+
+		
+		newStages = EXtoMEM(newStages);
 		
 		// move ID -> EX
 		newStages =  IDtoEX(newStages);
