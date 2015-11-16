@@ -170,31 +170,32 @@ function calculateNewCycle(newInstruction ){
 			}
 		if (okToMove){
 			newStages["ID"] = stages["IF"];	
+			StageAvailable["IF"] = 0
+			StageAvailable["ID"] = 1
 		}
-
-		if (okToMove){
-			// if there are instructions waiting then:
-			if (pipelineQueue.length > 0){
-				// put new instruction into pipeline	
-				newStages["IF"] = pipelineQueue[0];
-				
-				// then pop
-				delete pipelineQueue[0];
-				
-			}
-			else{
-				newStages["IF"] = newInstruction;	
-			}
-		}
-		else{
-			pipelineQueue.push(stages["IF"]);	
-		}
-
-
-
 
 		
-
+		// if there are instructions waiting then:
+		if (pipelineQueue.length > 0){
+			// put new instruction into pipeline	
+			newStages["IF"] = pipelineQueue[0];
+			stages["IF"].registers.forEach(function(reg){
+				RegChart[reg] = 1;
+				
+			});
+		
+			// then pop
+			delete pipelineQueue[0];
+			pipelineQueue.push(newInstruction);	
+		}
+		else{
+			newStages["IF"] = newInstruction;
+			stages["IF"].registers.forEach(function(reg){
+				RegChart[reg] = 1;
+				
+			});	
+		}
+		
 		return new Pipeline(newStages);
 
 }
@@ -216,7 +217,9 @@ function myCreateFunction() {
 
 		cycleCounter  +=1;
 		var inputArray = input.split(" ");
-		var Instr1 = new Instruction(inputArray[0],inputArray);
+		var op = inputArray[0]
+		inputArray.shift()
+		var Instr1 = new Instruction(op,inputArray);
 
 		var pipe = calculateNewCycle(Instr1, dependencies);
 
