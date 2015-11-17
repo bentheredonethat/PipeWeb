@@ -76,7 +76,8 @@ var IFtoID = function(newStages){
 	if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
 		StageAvailable["IF"] = 0
 		StageAvailable["ID"] = 1	
-		newStages["ID"] = stages["IF"];		
+		newStages["ID"] = stages["IF"];	
+
 	}
 	
 	return newStages;					
@@ -96,6 +97,9 @@ var toIF = function(newStages, newInstruction){
 		// then pop
 		delete pipelineQueue[0];
 		pipelineQueue.push(newInstruction);	
+
+		StageAvailable["IF"] = 1
+
 	}
 	else{
 		newStages["IF"] = newInstruction;
@@ -103,8 +107,11 @@ var toIF = function(newStages, newInstruction){
 			RegChart[reg] = 1;
 			
 		});	
+		if (newInstruction.format != ""){
+			StageAvailable["IF"] = 1			
+		}
 	}
-	StageAvailable["IF"] = 1
+
 
 	return newStages;	
 }
@@ -127,7 +134,9 @@ var IDtoEX = function(newStages){
 		// mem or wb does not matter
 		else{
 			StageAvailable["EX"] = StageAvailable["ID"];
-			newStages["EX"] = stages["ID"];
+			newStages["EX"] = newStages["ID"];
+			newStages["ID"] = null;
+			StageAvailable["ID"] = 0;
 		}
 		
 	}
