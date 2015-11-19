@@ -29,20 +29,44 @@
 </div>
 
 <body>
-<table id="myTable" border='1'>
-    <tr>
-    	<th>Cycle Number</th>
-        <th>IF</th>
-        <th>ID</th>
-        <th>EX</th>
-        <th>MEM</th>
-        <th>WB</th>
-    </tr>
-</table>
-<br><br><br><br><br>
+<table class="fixed">
+	<tr>
+		<td cellpadding="500" valign="top">
+			<table id="myTable" border='1' width="400">
+				<tr>
+					<th>Cycle Number</th>
+					<th>IF</th>
+					<th>ID</th>
+					<th>EX</th>
+					<th>MEM</th>
+					<th>WB</th>
+				</tr>
+			</table>			
+		</td>
+		<td>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+		<td cellpadding="50" valign="top">
+			<table>				
+				<tr>
+					<input type="text" id="myText" value="LW $s1 $s2 $s3">	
+				</tr>
 
-<input type="text" id="myText" value="LW $s1 $s2 $s3">
-<button onclick="myCreateFunction()">Generate Next Cycle</button>
+				<tr>
+					<br><br>
+					<button onclick="myCreateFunction()">Generate Next Cycle With Input</button>
+					<br><br>
+					<button onclick="EmptyInputCreateFunction()">Generate Next Cycle With No Input</button>										
+				</tr>
+
+			</table>
+		</td>
+	</tr>
+</table>
+
+
+
+
 
 </body>
 
