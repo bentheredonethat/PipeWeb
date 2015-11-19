@@ -125,84 +125,75 @@ var toIF = function(newStages, newInstruction){
 }
 
 
+
+// check if load in ex or mem
+var loadFormatStall = function(newStages){
+	
+	if (
+		(newStages["EX"] != null && newStages["EX"].operation == "LW") ||
+		(newStages["MEM"] != null && newStages["MEM"].operation == "LW") ||
+		(newStages["WB"] != null && newStages["WB"].operation == "LW")
+	){
+		return true;
+	}
+		
+	return false;
+}
+
+// check if load in ex or mem
+var storeFormatStall = function(newStages){
+	if (newStages["MEM"] != null && newStages["MEM"].operation == "SW"){
+		return true;
+	}
+	return false;
+}
+
+
+// check if load in ex or mem
+var coldStartOrEmpty = function(newStages){
+	if (newStages["EX"] == null && newStages["MEM"] == null && newStages["WB"] == null){
+		return true;
+	}
+	return false;
+}
+
+
 var IDtoEX = function(newStages){
 	// move ID -> EX
-	if (StageAvailable["EX"] == 0){
-		//		update stage table
 
-		// check for lw or sw
-		if (newStages["MEM"] != null){
-			/*
-			if (FormatDetailMap[ newStages["MEM"].operation] == "wb" || 
-				FormatDetailMap[ newStages["MEM"].operation] == "mem"){
-	*/
-			// check EX for data operation (LW & SW)
-			if (newStages["EX"].operation != "LW" && newStages["EX"].operation != "SW")
-			{
-				StageAvailable["EX"] = StageAvailable["ID"];
-				newStages["EX"] = stages["ID"];
-			}
-			// Check for LW in MEM.
-			if (newStages["MEM"].operation != "LW")
-			{
-				StageAvailable["EX"] = StageAvailable["ID"];
-				newStages["EX"] = stages["ID"];
-			}
+	if (
+		coldStartOrEmpty(newStages) ||
+		(storeFormatStall(newStages) == false && loadFormatStall(newStages) == false)
+	){
+		newStages["EX"]	= newStages["ID"];
+		newStages["ID"]	= null;
+		StageAvailable["EX"] = StageAvailable["ID"];
+		StageAvailable["ID"] = 0;
+	}
 
-		}
-		// mem or wb does not matter
-		else{
-			StageAvailable["EX"] = StageAvailable["ID"];
-			newStages["EX"] = newStages["ID"];
-			newStages["ID"] = null;
-			StageAvailable["ID"] = 0;
-		}
-		
-	}
-	else{
-		newStages["EX"] = null;
-	}
+	// else not ok so stall
 	return newStages;
 }
 
 var EXtoMEM = function(newStages){
-	// check if:
-		//		the registers in EX are available		
-		var okToMove = true;
-		if (newStages["EX"] != null){
-			stages["EX"].registers.forEach(function(reg){
-				if (RegChart[reg] == 1){
-					okToMove = false;
-					console.log("stall!");
-				}
-			});
-			//		EX as a stage is available
-			if (StageAvailable["MEM"] == 1){
-				okToMove = false;
-				console.log("stall!");
-			}
-		}
-		
-		// is mem available? if not stay in EX
 
+	//  move from EX -> MEM
+	if (StageAvailable["MEM"] == 0){
+		newStages["MEM"] = newStages["EX"];
+		newStages["EX"] = null;
 
-		//  move from EX -> MEM
-		if (StageAvailable["MEM"] == 0){
-			newStages["MEM"] = stages["EX"];
-			// 	so now we update stage table
-			StageAvailable["MEM"] = StageAvailable["EX"];
-		}
-		else{
-			newStages["MEM"] = null;
-		}
+		StageAvailable["MEM"] = StageAvailable["EX"];
+		StageAvailable["EX"] = 0;
+	}
 
-		return newStages;
+	return newStages;
 }
 
 
 var MEMtoWB = function(newStages, stages){
 
 	// HANDLING WB
+
 	// make each register now available
 	if (newStages["WB"] != null){
 		newStages["WB"].registers.forEach(function(reg){
@@ -210,32 +201,28 @@ var MEMtoWB = function(newStages, stages){
 		});	
 	}
 	StageAvailable["WB"] = 0;
-	if (newStages["WB"] != null){
-	// if the format of the instruction in MEM going to WB is LW or SW
-		if (newStages["WB"].operation == "LW" ||
-			newStages["WB"].operation == "SW"){
-			StageAvailable["EX"] = 0;
-			StageAvailable["MEM"] = 0;
-			StageAvailable["WB"] = 0;
+	newStages["WB"] = null;
 
-		}
-	}
 
-	//HANDLING MEM -> WB
-	// wb never stalls, so mem never stalls :)
+	// MEM -> WB
 
-	// if store format now in wb, then update destination register in reg table
 	if (newStages["MEM"] != null){
-		if (InstructionMap[newStages["MEM"].format] == 'mem'){
+		
+		if (newStages["MEM"].operation == "SW"){
 			newStages["MEM"].registers.forEach(function(reg){
 			RegChart[reg] = 0;
-		});
-		}
+		});			
+		} 
+
+
+		newStages["WB"] = newStages["MEM"];
+		newStages["MEM"] = null;
+		StageAvailable["MEM"] = 0;
+		StageAvailable["WB"] = 1;
+	
 	}
-
-	newStages["WB"] = stages["MEM"]; 
-
 	return newStages;
+
 }
 
 function calculateNewCycle(newInstruction ){
