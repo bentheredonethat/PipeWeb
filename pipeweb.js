@@ -132,12 +132,23 @@ var IDtoEX = function(newStages){
 
 		// check for lw or sw
 		if (newStages["MEM"] != null){
+			/*
 			if (FormatDetailMap[ newStages["MEM"].operation] == "wb" || 
 				FormatDetailMap[ newStages["MEM"].operation] == "mem"){
-				
+	*/
+			// check EX for data operation (LW & SW)
+			if (newStages["EX"].operation != "LW" && newStages["EX"].operation != "SW")
+			{
 				StageAvailable["EX"] = StageAvailable["ID"];
 				newStages["EX"] = stages["ID"];
 			}
+			// Check for LW in MEM.
+			if (newStages["MEM"].operation != "LW")
+			{
+				StageAvailable["EX"] = StageAvailable["ID"];
+				newStages["EX"] = stages["ID"];
+			}
+
 		}
 		// mem or wb does not matter
 		else{
