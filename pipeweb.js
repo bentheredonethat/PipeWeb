@@ -73,46 +73,54 @@ var FormatDetailMap = { "ARITHMETIC":"wb", "load":"wb","Store":"mem"};
 
 var IFtoID = function(newStages){
 
-	if (StageAvailable["IF"] == 1 && StageAvailable["ID"] == 0){
-		StageAvailable["IF"] = 0
-		StageAvailable["ID"] = 1	
-		newStages["ID"] = stages["IF"];	
-
+	if (StageAvailable["ID"] == 0){
+		
+		if (StageAvailable["IF"] == 1){
+			StageAvailable["IF"] = 0
+			StageAvailable["ID"] = 1	
+			newStages["ID"] = newStages["IF"];		
+			newStages["IF"] = null;
+		}
 	}
-	
 	return newStages;					
 }
 
 
 var toIF = function(newStages, newInstruction){
 	// if there are instructions waiting then:
-	if (pipelineQueue.length > 0){
-		// put new instruction into pipeline	
-		newStages["IF"] = pipelineQueue[0];
-		stages["IF"].registers.forEach(function(reg){
-			RegChart[reg] = 1;
-			
-		});
-	
-		// then pop
-		delete pipelineQueue[0];
-		pipelineQueue.push(newInstruction);	
 
-		StageAvailable["IF"] = 1
+	// if you can move into IF
+	if (StageAvailable["IF"] == 0){
 
-	}
-	else{
-		newStages["IF"] = newInstruction;
-		stages["IF"].registers.forEach(function(reg){
-			RegChart[reg] = 1;
-			
-		});	
-		if (newInstruction.format != ""){
-			StageAvailable["IF"] = 1			
+		// is stuff waiting already?
+		if (pipelineQueue.length > 0){
+			// put new instruction into pipeline	
+			newStages["IF"] = pipelineQueue[0];
+			newStages["IF"].registers.forEach(function(reg){
+				RegChart[reg] = 1;
+				
+			});
+		
+			// then pop
+			delete pipelineQueue[0];
+			pipelineQueue.push(newInstruction);	
+
+			StageAvailable["IF"] = 1
+
+		}
+		// nope so move new instruction in
+		else{
+			// is there a new instruction?
+			if (newInstruction.operation != ""){
+				newStages["IF"] = newInstruction;
+				StageAvailable["IF"] = 1;
+			}
 		}
 	}
-
-
+	else{
+		// if IF not available but instruction is waiting
+		if (newInstruction.operation != ""){ pipelineQueue.push(newInstruction); }
+	}
 	return newStages;	
 }
 
