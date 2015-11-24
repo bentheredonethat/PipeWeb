@@ -220,10 +220,10 @@ var toIF = function(newStages, newInstruction){
 		// nope so move new instruction in
 		else{
 			// is there a new instruction?
-			if (newInstruction.operation != ""){
-				newStages["IF"] = newInstruction;
+			if (newInstruction != null){
 				StageAvailable["IF"] = 1;
 			}
+			newStages["IF"] = newInstruction;
 		}
 	}
 	else{
@@ -357,12 +357,8 @@ function calculateNewCycle(newInstruction ){
 		// moving from IF to ID
 		newStages = IFtoID(newStages);
 
-		if (newInstruction != ""){
-			newStages = toIF(newStages, newInstruction);
-		}
-		else{
-			newStages = toIF(newStages, newInstruction);	
-		}		
+		newStages = toIF(newStages, newInstruction);	
+	
 
 		return new Pipeline(newStages);
 
@@ -424,7 +420,7 @@ function EmptyInputCreateFunction() {
 		inputArray.shift()
 		var Instr1 = "";
 
-		var pipe = calculateNewCycle(Instr1);
+		var pipe = calculateNewCycle(null);
 
 		// Add some text to the new cells:
 		cell0.innerHTML = cycleCounter;
