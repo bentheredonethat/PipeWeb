@@ -30,7 +30,9 @@ var Instruction = function(input){
 
 
 // 0 is available 1 is occupied
-var StageAvailable = { "IF":0, "ID":0, "EX":0, "MEM":0, "WB":0}
+var StageAvailable = { "IF":0, "ID":0, "EX":0, "MEM":0, "WB":0};
+
+var forwardStageAvailable = { "IF":0, "ID":0, "EX":0, "MEM":0, "WB":0};
 
 // have this include more instructions
 var InstructionMap = {"ADD": 'R', "LW": 'load', "SW": "Store"};
@@ -58,11 +60,11 @@ function calculateNewCycle(newInstruction ){
 function forwardcalculateNewCycle(newInstruction ){
 
 		// collection of new stages
-		var newStages = stages;
+		var newStages = forwardstages;
 
-		newStages = forwardMEMtoWB(newStages, stages);		
+		newStages = forwardMEMtoWB(newStages);		
 		newStages = forwardEXtoMEM(newStages);
-		newStages =  forwardIDtoEX(newStages);// move ID -> EX
+		newStages = forwardIDtoEX(newStages);// move ID -> EX
 		newStages = forwardIFtoID(newStages);// moving from IF to ID
 		newStages = forwardtoIF(newStages, newInstruction);	
 	
@@ -73,9 +75,11 @@ function forwardcalculateNewCycle(newInstruction ){
 function myCreateFunction(NOP) {
 	$(document).ready(function () {
 		var pipe;
+		var forwardpipe;
 		// If NOP is true, populate with NULL instruction
 		if (NOP){
 			pipe = calculateNewCycle(null);
+			forwardpipe = forwardcalculateNewCycle(null);
 		}
 		// If there is user input, check if valid. 
 		else
@@ -94,8 +98,8 @@ function myCreateFunction(NOP) {
 		cycleCounter  +=1;
 	    var table = document.getElementById("myTable");	
 	    var Forwardtable = document.getElementById("myForwardTable");	
-	    PopulateTheTable(table,cycleCounter, pipe);
-	    PopulateTheTable(Forwardtable, cycleCounter, forwardpipe);
+	    PopulateTheTable(table,			cycleCounter, pipe);
+	    PopulateTheTable(Forwardtable, 	cycleCounter, forwardpipe);
 	
 	});
 }

@@ -1,10 +1,10 @@
 var forwardIFtoID = function(newStages){
 
-	if (StageAvailable["ID"] == 0){
+	if (forwardStageAvailable["ID"] == 0){
 		
-		if (StageAvailable["IF"] == 1){
-			StageAvailable["IF"] = 0
-			StageAvailable["ID"] = 1	
+		if (forwardStageAvailable["IF"] == 1){
+			forwardStageAvailable["IF"] = 0
+			forwardStageAvailable["ID"] = 1	
 			newStages["ID"] = newStages["IF"];		
 			newStages["IF"] = null;
 		}
@@ -16,36 +16,36 @@ var forwardtoIF = function(newStages, newInstruction){
 	// if there are instructions waiting then:
 
 	// if you can move into IF
-	if (StageAvailable["IF"] == 0){
+	if (forwardStageAvailable["IF"] == 0){
 
 		// is stuff waiting already?
-		if (pipelineQueue.length > 0){
+		if (forwardpipelineQueue.length > 0){
 			// put new instruction into pipeline	
-			newStages["IF"] = pipelineQueue[0];
+			newStages["IF"] = forwardpipelineQueue[0];
 			newStages["IF"].registers.forEach(function(reg){
-				RegChart[reg] = 1;
+				forwardRegChart[reg] = 1;
 				
 			});
 		
 			// then pop
-			delete pipelineQueue[0];
-			pipelineQueue.push(newInstruction);	
+			delete forwardpipelineQueue[0];
+			forwardpipelineQueue.push(newInstruction);	
 
-			StageAvailable["IF"] = 1
+			forwardStageAvailable["IF"] = 1
 
 		}
 		// nope so move new instruction in
 		else{
 			// is there a new instruction?
 			if (newInstruction != null){
-				StageAvailable["IF"] = 1;
+				forwardStageAvailable["IF"] = 1;
 			}
 			newStages["IF"] = newInstruction;
 		}
 	}
 	else{
 		// if IF not available but instruction is waiting
-		if (newInstruction.operation != ""){ pipelineQueue.push(newInstruction); }
+		if (newInstruction.operation != ""){ forwardpipelineQueue.push(newInstruction); }
 	}
 	return newStages;	
 }
@@ -58,7 +58,7 @@ var forwardIDtoEX = function(newStages){
 	if (newStages["ID"] != null){ // not null
 
 		newStages["ID"].sourceRegs.forEach(function(entry){
-			if (RegChart[entry] == 1){
+			if (forwardRegChart[entry] == 1){
 				ok = false;
 			}
 		});
@@ -67,11 +67,11 @@ var forwardIDtoEX = function(newStages){
 		
 		newStages["EX"]	= newStages["ID"];
 		newStages["ID"]	= null;
-		StageAvailable["EX"] = StageAvailable["ID"];
-		StageAvailable["ID"] = 0;
+		forwardStageAvailable["EX"] = forwardStageAvailable["ID"];
+		forwardStageAvailable["ID"] = 0;
 
 		if (newStages["EX"] != null){ 
-			RegChart[newStages["EX"].destRegs] = 1;
+			forwardRegChart[newStages["EX"].destRegs] = 1;
 		}
 
 	}			
@@ -81,26 +81,38 @@ var forwardIDtoEX = function(newStages){
 }
 var forwardEXtoMEM = function(newStages){
 
+	// FORWARDING FOR BEQ, R-FORMATS
+	if (newStages["EX"] != null && 
+		(
+			newStages["EX"].operation == "BEQ" || 
+			$.inArray(newStages["EX"].operation, rInstructions) != -1
+		)
+	)	
+	{
+			forwardRegChart[newStages["EX"].destRegs] = 0;		
+	}
+
+
 	//  move from EX -> MEM
-	if (StageAvailable["MEM"] == 0){
+	if (forwardStageAvailable["MEM"] == 0){
 		newStages["MEM"] = newStages["EX"];
 		newStages["EX"] = null;
 
-		StageAvailable["MEM"] = StageAvailable["EX"];
-		StageAvailable["EX"] = 0;
+		forwardStageAvailable["MEM"] = forwardStageAvailable["EX"];
+		forwardStageAvailable["EX"] = 0;
 	}
 
 	return newStages;
 }
-var forwardMEMtoWB = function(newStages, stages){
+var forwardMEMtoWB = function(newStages){
 
 	// HANDLING WB
 
 	// make destination register now available
 	if (newStages["WB"] != null){
-		RegChart[newStages["WB"].destRegs] = 0;
+		forwardRegChart[newStages["WB"].destRegs] = 0;
 	}
-	StageAvailable["WB"] = 0;
+	forwardStageAvailable["WB"] = 0;
 	newStages["WB"] = null;
 
 
@@ -109,14 +121,19 @@ var forwardMEMtoWB = function(newStages, stages){
 	if (newStages["MEM"] != null){
 		
 		if (newStages["MEM"].operation == "SW"){
-			RegChart[newStages["MEM"].destRegs] = 0;		
+			forwardRegChart[newStages["MEM"].destRegs] = 0;		
 		} 
+
+		// FORWARDING FOR LW
+		if (newStages["MEM"].operation == "LW"){
+			forwardRegChart[newStages["MEM"].destRegs] = 0;		
+		}
 
 
 		newStages["WB"] = newStages["MEM"];
 		newStages["MEM"] = null;
-		StageAvailable["MEM"] = 0;
-		StageAvailable["WB"] = 1;
+		forwardStageAvailable["MEM"] = 0;
+		forwardStageAvailable["WB"] = 1;
 	
 	}
 	return newStages;

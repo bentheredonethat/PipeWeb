@@ -45,7 +45,7 @@ var toIF = function(newStages, newInstruction){
 	}
 	else{
 		// if IF not available but instruction is waiting
-		if (newInstruction.operation != ""){ pipelineQueue.push(newInstruction); }
+		if (newInstruction.operation != null){ pipelineQueue.push(newInstruction); }
 	}
 	return newStages;	
 }
@@ -92,7 +92,7 @@ var EXtoMEM = function(newStages){
 
 	return newStages;
 }
-var MEMtoWB = function(newStages, stages){
+var MEMtoWB = function(newStages){
 
 	// HANDLING WB
 
