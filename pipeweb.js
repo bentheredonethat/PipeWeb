@@ -1,10 +1,4 @@
-// structure of objects
-
-
-
-// 1 cycle has:
-// --up to to five instructions
-// --possibly some dependencies
+// 1 cycle has five instructions
 var Pipeline = function(stages){
 	this.IF = stages['IF'];
 	this.ID = stages['ID'];
@@ -13,7 +7,6 @@ var Pipeline = function(stages){
 	this.WB = stages['WB'];
 	this.queue = null;	
 };
-
 
 var rInstructions = ["ADD", "ADDU", "SUB", "SUBU", "OR", "AND", "XOR"];
 // 0 is available, 1 is occupied
@@ -55,26 +48,26 @@ var validBEQFormat = function(op, regs){
 }
 
 var setRFormat = function(op, regs){
-	var OpAndRegs = [];
+	var OpAndRegs = {};
 	OpAndRegs["valid"] = true;
 		
 	// put in source and dest regs
 	OpAndRegs['sourceRegs'] = regs.slice(1);
 	OpAndRegs['destRegs'] = regs[0];
 
-	OpAndRegs["op"] = op;
+	OpAndRegs["operation"] = op;
 	return OpAndRegs;
 }
 
 var setBEQFormat = function(op, regs){
-	var OpAndRegs = [];
+	var OpAndRegs = {};
 	OpAndRegs["valid"] = true;
 		
 	// put in source and dest regs
 	OpAndRegs['sourceRegs'] = regs.slice(0,1);
 	OpAndRegs['destRegs'] = null;
 
-	OpAndRegs["op"] = op;
+	OpAndRegs["operation"] = op;
 	return OpAndRegs;
 }
 
@@ -103,7 +96,7 @@ var validDataFormat = function(op, regs){
 }
 
 var setDataFormat = function(op, regs){
-	var OpAndRegs = [];
+	var OpAndRegs = {};
 	OpAndRegs["valid"] = true;
 		
 	// put in source and dest regs
@@ -116,7 +109,7 @@ var setDataFormat = function(op, regs){
 		OpAndRegs['destRegs'] = regs[1];	
 	}
 
-	OpAndRegs["op"] = op;
+	OpAndRegs["operation"] = op;
 	return OpAndRegs;
 }
 
@@ -124,7 +117,7 @@ var setDataFormat = function(op, regs){
 var ParseInstructionString = function(str){
 	// get operation and registers
 	var OpAndRegs = {};
-	var op = str.substr(0,str.indexOf(' ')); 
+	var operation = str.substr(0,str.indexOf(' ')); 
 
 
 	var regs = str.substr(str.indexOf(' '));
@@ -132,15 +125,15 @@ var ParseInstructionString = function(str){
 	regs = regs.split(",")
 	
 	// check if operation is valid r-format operation
-	if (validRFormat(op, regs)){
-		return setRFormat(op,regs);
+	if (validRFormat(operation, regs)){
+		return setRFormat(operation,regs);
 	}
 
-	if (validBEQFormat(op, regs)){
-		return setBEQFormat(op,regs);
+	if (validBEQFormat(operation, regs)){
+		return setBEQFormat(operation,regs);
 	}
-	if (validDataFormat(op, regs)){
-		return setDataFormat(op, regs);
+	if (validDataFormat(operation, regs)){
+		return setDataFormat(operation, regs);
 	}
 
 	// if load or store then check if valid first
@@ -150,14 +143,10 @@ var ParseInstructionString = function(str){
 }
 
 	
-
-
-
-
 // 1 instruction  has:
 // -- a format
-// -- some registers associated with fields (rs, rt, etc.)
-// -- register type -s arithmetic/load/store etc. 
+// -- maybe dest reg
+// -- source reg(s)
 var Instruction = function(input){
 
 	var newInstruction = ParseInstructionString(input);
@@ -180,36 +169,9 @@ var DataDependency =function(reg, stage){
 	this.stage = stage;
 }
 
-var InstrFormatMap = {
-
-};
-
-
-function calculateNewDependencies(newInstruction, oldDependencies){
-// check if any of the registers in the new instruction
-// are nearby in old dependencies
-
-var newDependencies = [];
-
-
-// list of booleans for each potentially new register
-// to put in dependencies list
-var potentialNewDependencies = [];
-newInstruction.registers.forEach(function(current){
-	potentialNewDependencies.push(0);
-});
-
-// check if any registers in new Instr. are in oldDep, so as not to add them
-
-
-
-return newDependencies;
-}
 
 // 0 is available 1 is occupied
 var StageAvailable = { "IF":0, "ID":0, "EX":0, "MEM":0, "WB":0}
-
-
 
 // have this include more instructions
 var InstructionMap = {"ADD": 'R', "LW": 'load', "SW": "Store"};
@@ -272,7 +234,6 @@ var toIF = function(newStages, newInstruction){
 }
 
 
-
 // check if load in ex or mem
 var loadFormatStall = function(newStages){
 	
@@ -307,16 +268,26 @@ var coldStartOrEmpty = function(newStages){
 
 var IDtoEX = function(newStages){
 	// move ID -> EX
+	var ok = true;
 
-	if (
-		coldStartOrEmpty(newStages) ||
-		(storeFormatStall(newStages) == false && loadFormatStall(newStages) == false)
-	){
+
+	if (newStages["EX"] != null){ // not null
+
+		newStages["EX"].sourceRegs.forEach(function(entry){
+			if (RegChart[entry] == 1){
+				ok = false;
+			}
+		});
+	}
+	if (ok){
+		if (newStages["EX"] != null){ 
+			RegChart[newStages["EX"].destReg] = 1;
+		}
 		newStages["EX"]	= newStages["ID"];
 		newStages["ID"]	= null;
 		StageAvailable["EX"] = StageAvailable["ID"];
 		StageAvailable["ID"] = 0;
-	}
+	}			
 
 	// else not ok so stall
 	return newStages;
@@ -341,11 +312,9 @@ var MEMtoWB = function(newStages, stages){
 
 	// HANDLING WB
 
-	// make each register now available
+	// make destination register now available
 	if (newStages["WB"] != null){
-		newStages["WB"].registers.forEach(function(reg){
-			RegChart[reg] = 0;
-		});	
+		RegChart[newStages["WB"].destReg] = 0;
 	}
 	StageAvailable["WB"] = 0;
 	newStages["WB"] = null;
@@ -356,9 +325,7 @@ var MEMtoWB = function(newStages, stages){
 	if (newStages["MEM"] != null){
 		
 		if (newStages["MEM"].operation == "SW"){
-			newStages["MEM"].registers.forEach(function(reg){
-			RegChart[reg] = 0;
-		});			
+			RegChart[newStages["WB"].destReg] = 0;		
 		} 
 
 
@@ -390,8 +357,12 @@ function calculateNewCycle(newInstruction ){
 		// moving from IF to ID
 		newStages = IFtoID(newStages);
 
-		newStages = toIF(newStages, newInstruction);
-		
+		if (newInstruction != ""){
+			newStages = toIF(newStages, newInstruction);
+		}
+		else{
+			newStages = toIF(newStages, newInstruction);	
+		}		
 
 		return new Pipeline(newStages);
 
@@ -416,7 +387,7 @@ function myCreateFunction() {
 			var cell4 = row.insertCell(4);
 			var cell5 = row.insertCell(5);
 
-			var pipe = calculateNewCycle(Instr1, dependencies);
+			var pipe = calculateNewCycle(Instr1);
 
 			// Add some text to the new cells:
 			cell0.innerHTML = cycleCounter;
@@ -451,9 +422,9 @@ function EmptyInputCreateFunction() {
 		var inputArray = input.split(" ");
 		var op = inputArray[0]
 		inputArray.shift()
-		var Instr1 = new Instruction(op,inputArray);
+		var Instr1 = "";
 
-		var pipe = calculateNewCycle(Instr1, dependencies);
+		var pipe = calculateNewCycle(Instr1);
 
 		// Add some text to the new cells:
 		cell0.innerHTML = cycleCounter;

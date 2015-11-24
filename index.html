@@ -1,7 +1,7 @@
 
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="pipeweb.js"></script>
 <script type="text/javascript">
 	var cycleCounter = 0;
@@ -59,14 +59,14 @@
 		<td cellpadding="50" valign="top">
 			<table>				
 				<tr>
-					<input type="text" id="myText" value="LW $s1 $s2 $s3">	
+					<input type="text" id="myText" value="ADD $s1, $s2, $s3">	
 				</tr>
 
 				<tr>
 					<br><br>
 					<button onclick="myCreateFunction()">Generate Next Cycle With Input</button>
 					<br><br>
-					<button onclick="EmptyInputCreateFunction()">Generate Next Cycle With No Input</button>										
+					<button onclick="EmptyInputCreateFunction()">NOP</button>										
 				</tr>
 
 			</table>
