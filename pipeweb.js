@@ -101,11 +101,11 @@ var setDataFormat = function(op, regs){
 		
 	// put in source and dest regs
 	if (op == "LW"){
-		OpAndRegs['sourceRegs'] = regs[1];
+		OpAndRegs['sourceRegs'] = [regs[1]];
 		OpAndRegs['destRegs'] = regs[0];	
 	}
 	else{
-		OpAndRegs['sourceRegs'] = regs[0];
+		OpAndRegs['sourceRegs'] = [regs[0]];
 		OpAndRegs['destRegs'] = regs[1];	
 	}
 
@@ -317,7 +317,7 @@ var MEMtoWB = function(newStages, stages){
 
 	// make destination register now available
 	if (newStages["WB"] != null){
-		RegChart[newStages["WB"].destReg] = 0;
+		RegChart[newStages["WB"].destRegs] = 0;
 	}
 	StageAvailable["WB"] = 0;
 	newStages["WB"] = null;
