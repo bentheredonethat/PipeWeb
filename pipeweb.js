@@ -8,7 +8,7 @@ var Pipeline = function(stages){
 	this.queue = null;	
 };
 
-var rInstructions = ["ADD", "ADDU", "SUB", "SUBU", "OR", "AND", "XOR"];
+var rInstructions = ["ADD", "ADDU", "SUB", "SUBU", "OR", "AND", "XOR", "NOR", "SLT", "SLTU"];
 // 0 is available, 1 is occupied
 var RegChart = {
 	"$t0": 0, "$t1": 0, "$t2": 0, "$t3": 0, "$t4": 0, "$t5": 0,
