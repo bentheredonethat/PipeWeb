@@ -55,6 +55,21 @@ function calculateNewCycle(newInstruction ){
 		return new Pipeline(newStages);
 }
 
+function forwardcalculateNewCycle(newInstruction ){
+
+		// collection of new stages
+		var newStages = stages;
+
+		newStages = forwardMEMtoWB(newStages, stages);		
+		newStages = forwardEXtoMEM(newStages);
+		newStages =  forwardIDtoEX(newStages);// move ID -> EX
+		newStages = forwardIFtoID(newStages);// moving from IF to ID
+		newStages = forwardtoIF(newStages, newInstruction);	
+	
+		return new Pipeline(newStages);
+}
+
+
 function myCreateFunction(NOP) {
 	$(document).ready(function () {
 		var pipe;
@@ -69,6 +84,7 @@ function myCreateFunction(NOP) {
 			var Instr1 = new Instruction(inputString);
 			if (Instr1.valid == true){
 				pipe = calculateNewCycle(Instr1);
+				forwardpipe = forwardcalculateNewCycle(Instr1);
 			}
 			else{
 				alert(inputString + " is not an accepted instruction \n :(")
@@ -79,7 +95,7 @@ function myCreateFunction(NOP) {
 	    var table = document.getElementById("myTable");	
 	    var Forwardtable = document.getElementById("myForwardTable");	
 	    PopulateTheTable(table,cycleCounter, pipe);
-	    PopulateTheTable(Forwardtable, cycleCounter, pipe);
+	    PopulateTheTable(Forwardtable, cycleCounter, forwardpipe);
 	
 	});
 }
