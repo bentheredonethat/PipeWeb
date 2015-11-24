@@ -14,13 +14,164 @@ var Pipeline = function(stages){
 	this.queue = null;	
 };
 
+
+var rInstructions = ["ADD", "ADDU", "SUB", "SUBU", "OR", "AND", "XOR"];
+// 0 is available, 1 is occupied
+var RegChart = {
+	"$t0": 0, "$t1": 0, "$t2": 0, "$t3": 0, "$t4": 0, "$t5": 0,
+	"$t6": 0, "$t7": 0, "$t8": 0, "$t9": 0, "$s0": 0, "$s1": 0,
+	"$s2": 0, "$s3": 0, "$s4": 0, "$s5": 0, "$s6": 0, "$s7": 0,"$s8": 0, "$s9": 0};
+
+var validRFormat = function(op, regs){
+	// check if operation is valid r-format operation
+	if ($.inArray(op, rInstructions) == -1){
+		return false;
+	}
+	if (regs.length != 3){
+			var ok = false;
+	}
+	for (var i = 0; i < 3; i++){
+		if (RegChart[regs[i]] === undefined){
+			return false;
+		}
+	}
+	return true;
+}
+
+var validBEQFormat = function(op, regs){
+	// check if operation is valid r-format operation
+	if (op != "BEQ"){
+		return false;
+	}
+	if (regs.length != 2){
+			return false;
+	}
+	for (var i = 0; i < 2; i++){
+		if (RegChart[regs[i]] === undefined){
+			return false;
+		}
+	}
+	return true;
+}
+
+var setRFormat = function(op, regs){
+	var OpAndRegs = [];
+	OpAndRegs["valid"] = true;
+		
+	// put in source and dest regs
+	OpAndRegs['sourceRegs'] = regs.slice(1);
+	OpAndRegs['destRegs'] = regs[0];
+
+	OpAndRegs["op"] = op;
+	return OpAndRegs;
+}
+
+var setBEQFormat = function(op, regs){
+	var OpAndRegs = [];
+	OpAndRegs["valid"] = true;
+		
+	// put in source and dest regs
+	OpAndRegs['sourceRegs'] = regs.slice(0,1);
+	OpAndRegs['destRegs'] = null;
+
+	OpAndRegs["op"] = op;
+	return OpAndRegs;
+}
+
+var validDataFormat = function(op, regs){
+	// check if operation is valid r-format operation
+	if (op != "SW" && op != "LW"){
+		return false;
+	}
+	if (regs.length != 2){
+			return false;
+	}
+
+	// parse out offset as number and dest reg in parens
+	var regExp = /\(([^)]+)\)/;
+	var matches = regExp.exec(regs[1]);
+	// change reg[1] from Num(x) to x
+	regs[1] = matches[1];
+
+	
+	for (var i = 0; i < 2; i++){
+		if (RegChart[regs[i]] === undefined){
+			return false;
+		}
+	}
+	return true	;
+}
+
+var setDataFormat = function(op, regs){
+	var OpAndRegs = [];
+	OpAndRegs["valid"] = true;
+		
+	// put in source and dest regs
+	if (op == "LW"){
+		OpAndRegs['sourceRegs'] = regs[1];
+		OpAndRegs['destRegs'] = regs[0];	
+	}
+	else{
+		OpAndRegs['sourceRegs'] = regs[0];
+		OpAndRegs['destRegs'] = regs[1];	
+	}
+
+	OpAndRegs["op"] = op;
+	return OpAndRegs;
+}
+
+// given input, figure out operation, source and destination registers
+var ParseInstructionString = function(str){
+	// get operation and registers
+	var OpAndRegs = {};
+	var op = str.substr(0,str.indexOf(' ')); 
+
+
+	var regs = str.substr(str.indexOf(' '));
+	regs = regs.replace(/ /gi,"");
+	regs = regs.split(",")
+	
+	// check if operation is valid r-format operation
+	if (validRFormat(op, regs)){
+		return setRFormat(op,regs);
+	}
+
+	if (validBEQFormat(op, regs)){
+		return setBEQFormat(op,regs);
+	}
+	if (validDataFormat(op, regs)){
+		return setDataFormat(op, regs);
+	}
+
+	// if load or store then check if valid first
+
+	OpAndRegs["valid"] = false;
+	return OpAndRegs;
+}
+
+	
+
+
+
+
 // 1 instruction  has:
 // -- a format
 // -- some registers associated with fields (rs, rt, etc.)
 // -- register type -s arithmetic/load/store etc. 
-var Instruction = function(format, registers){
-	this.operation = format;
-	this.registers= registers;
+var Instruction = function(input){
+
+	var newInstruction = ParseInstructionString(input);
+
+		// note the three equal signs so that null won't be equal to undefined
+	if( newInstruction["valid"] == false ) {
+	    return newInstruction;
+	}
+	else{
+		this.operation = newInstruction['format'];
+		this.sourceReg = newInstruction['sourceRegs'];
+		this.destReg = newInstruction['destRegs'];
+		return newInstruction;
+	}	
 };
 
 // for list of dependencies
@@ -58,11 +209,7 @@ return newDependencies;
 // 0 is available 1 is occupied
 var StageAvailable = { "IF":0, "ID":0, "EX":0, "MEM":0, "WB":0}
 
-// 0 is available, 1 is occupied
-var RegChart = {
-	"$t0": 0, "$t1": 0, "$t2": 0, "$t3": 0, "$t4": 0, "$t5": 0,
-	"$t6": 0, "$t7": 0, "$t8": 0, "$t9": 0, "$s0": 0, "$s1": 0,
-	"$s2": 0, "$s3": 0, "$s4": 0, "$s5": 0, "$s6": 0, "$s7": 0,"$s8": 0, "$s9": 0};
+
 
 // have this include more instructions
 var InstructionMap = {"ADD": 'R', "LW": 'load', "SW": "Store"};
@@ -253,34 +400,35 @@ function calculateNewCycle(newInstruction ){
 
 function myCreateFunction() {
 	$(document).ready(function () {
-	    table = document.getElementById("myTable");
-	    row = table.insertRow(-1);
-	    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-		var cell0 = row.insertCell(0);
-		var cell1 = row.insertCell(1);
-		var cell2 = row.insertCell(2);
-		var cell3 = row.insertCell(3);
-		var cell4 = row.insertCell(4);
-		var cell5 = row.insertCell(5);
 
-		var input = document.getElementById("myText").value;
 
-		cycleCounter  +=1;
-		var inputArray = input.split(" ");
-		var op = inputArray[0]
-		inputArray.shift()
-		var Instr1 = new Instruction(op,inputArray);
+		var inputString = document.getElementById("myText").value;
+		var Instr1 = new Instruction(inputString);
+		if (Instr1.valid == true){
+			cycleCounter  +=1;
+		    table = document.getElementById("myTable");	
+		    row = table.insertRow(-1);
+		    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+			var cell0 = row.insertCell(0);
+			var cell1 = row.insertCell(1);
+			var cell2 = row.insertCell(2);
+			var cell3 = row.insertCell(3);
+			var cell4 = row.insertCell(4);
+			var cell5 = row.insertCell(5);
 
-		var pipe = calculateNewCycle(Instr1, dependencies);
+			var pipe = calculateNewCycle(Instr1, dependencies);
 
-		// Add some text to the new cells:
-		cell0.innerHTML = cycleCounter;
-		cell1.innerHTML =  null != pipe.IF ? pipe.IF.operation:"";
-		cell2.innerHTML =  null != pipe.ID ? pipe.ID.operation:"";
-		cell3.innerHTML =  null != pipe.EX ? pipe.EX.operation:"";
-		cell4.innerHTML =  null != pipe.MEM? pipe.MEM.operation:"";
-		cell5.innerHTML =  null != pipe.WB ? pipe.WB.operation:"";
-
+			// Add some text to the new cells:
+			cell0.innerHTML = cycleCounter;
+			cell1.innerHTML =  null != pipe.IF ? pipe.IF.operation:"";
+			cell2.innerHTML =  null != pipe.ID ? pipe.ID.operation:"";
+			cell3.innerHTML =  null != pipe.EX ? pipe.EX.operation:"";
+			cell4.innerHTML =  null != pipe.MEM? pipe.MEM.operation:"";
+			cell5.innerHTML =  null != pipe.WB ? pipe.WB.operation:"";
+		}
+		else{
+			alert(inputString + " is not an accepted instruction \n :(")
+		}
 	});
 }
 
