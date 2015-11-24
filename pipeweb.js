@@ -271,22 +271,25 @@ var IDtoEX = function(newStages){
 	var ok = true;
 
 
-	if (newStages["EX"] != null){ // not null
+	if (newStages["ID"] != null){ // not null
 
-		newStages["EX"].sourceRegs.forEach(function(entry){
+		newStages["ID"].sourceRegs.forEach(function(entry){
 			if (RegChart[entry] == 1){
 				ok = false;
 			}
 		});
 	}
 	if (ok){
-		if (newStages["EX"] != null){ 
-			RegChart[newStages["EX"].destReg] = 1;
-		}
+		
 		newStages["EX"]	= newStages["ID"];
 		newStages["ID"]	= null;
 		StageAvailable["EX"] = StageAvailable["ID"];
 		StageAvailable["ID"] = 0;
+
+		if (newStages["EX"] != null){ 
+			RegChart[newStages["EX"].destRegs] = 1;
+		}
+
 	}			
 
 	// else not ok so stall
