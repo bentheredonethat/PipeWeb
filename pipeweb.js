@@ -371,46 +371,31 @@ function calculateNewCycle(newInstruction ){
 
 }
 
-
-function myCreateFunction() {
+function myCreateFunction(NOP) {
 	$(document).ready(function () {
-
-
-		var inputString = document.getElementById("myText").value;
-		var Instr1 = new Instruction(inputString);
-		if (Instr1.valid == true){
-			cycleCounter  +=1;
-		    table = document.getElementById("myTable");	
-		    row = table.insertRow(-1);
-		    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-			var cell0 = row.insertCell(0);
-			var cell1 = row.insertCell(1);
-			var cell2 = row.insertCell(2);
-			var cell3 = row.insertCell(3);
-			var cell4 = row.insertCell(4);
-			var cell5 = row.insertCell(5);
-
-			var pipe = calculateNewCycle(Instr1);
-
-			// Add some text to the new cells:
-			cell0.innerHTML = cycleCounter;
-			cell1.innerHTML =  null != pipe.IF ? pipe.IF.operation:"";
-			cell2.innerHTML =  null != pipe.ID ? pipe.ID.operation:"";
-			cell3.innerHTML =  null != pipe.EX ? pipe.EX.operation:"";
-			cell4.innerHTML =  null != pipe.MEM? pipe.MEM.operation:"";
-			cell5.innerHTML =  null != pipe.WB ? pipe.WB.operation:"";
+		var pipe;
+		// If NOP is true, populate with NULL instruction
+		if (NOP){
+			pipe = calculateNewCycle(null);
 		}
-		else{
-			alert(inputString + " is not an accepted instruction \n :(")
+		// If there is user input, check if valid. 
+		else
+		{
+			var inputString = document.getElementById("myText").value;
+			var Instr1 = new Instruction(inputString);
+			if (Instr1.valid == true){
+				pipe = calculateNewCycle(Instr1);
+			}
+			else{
+				alert(inputString + " is not an accepted instruction \n :(")
+			}
 		}
-	});
-}
-
-
-function EmptyInputCreateFunction() {
-	$(document).ready(function () {
-	    table = document.getElementById("myTable");
-	    row = table.insertRow(-1);
+		// Generate new table rows.
+		cycleCounter  +=1;
+	    var table = document.getElementById("myTable");	
+	    var Forwardtable = document.getElementById("myForwardTable");	
+	    
+	    var row = table.insertRow(-1);
 	    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
 		var cell0 = row.insertCell(0);
 		var cell1 = row.insertCell(1);
@@ -419,15 +404,7 @@ function EmptyInputCreateFunction() {
 		var cell4 = row.insertCell(4);
 		var cell5 = row.insertCell(5);
 
-		var input = "";
-
-		cycleCounter  +=1;
-		var inputArray = input.split(" ");
-		var op = inputArray[0]
-		inputArray.shift()
-		var Instr1 = "";
-
-		var pipe = calculateNewCycle(null);
+		//var pipe = calculateNewCycle(Instr1);
 
 		// Add some text to the new cells:
 		cell0.innerHTML = cycleCounter;
@@ -436,7 +413,7 @@ function EmptyInputCreateFunction() {
 		cell3.innerHTML =  null != pipe.EX ? pipe.EX.operation:"";
 		cell4.innerHTML =  null != pipe.MEM? pipe.MEM.operation:"";
 		cell5.innerHTML =  null != pipe.WB ? pipe.WB.operation:"";
+		
 
 	});
 }
-

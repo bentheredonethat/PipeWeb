@@ -41,8 +41,22 @@
 <body >
 <table class="fixed" align="center">
 	<tr>
+		<tr>
+			
+		</tr>
+		<tr>
+			
+		</tr>
 		<td cellpadding="500" valign="top">
-			<table id="myTable" border='1' width="400">
+			<table align="center">
+				<th>
+					forwarding
+				</th>
+				<tr>
+					
+				</tr>
+			</table>		
+			<table id="myForwardTable" border='1' width="400">
 				<tr>
 					<th>Cycle Number</th>
 					<th>IF</th>
@@ -56,21 +70,41 @@
 		<td>
 			&nbsp;&nbsp;&nbsp;&nbsp;
 		</td>
-		<td cellpadding="50" valign="top">
-			<table>				
-				<tr>
+		<td cellpadding="50" valign="top" align="center">
+			<table align="center">				
+				<tr align="center">
 					<input type="text" id="myText" value="ADD $s1, $s2, $s3">	
 				</tr>
 
-				<tr>
+				<tr align="center">
 					<br><br>
-					<button onclick="myCreateFunction()">Generate Next Cycle With Input</button>
+					<button onclick="myCreateFunction(false)">Generate Next Cycle With Input</button>
 					<br><br>
-					<button onclick="EmptyInputCreateFunction()">NOP</button>										
+					<button onclick="myCreateFunction(true)">NOP</button>										
 				</tr>
 
 			</table>
 		</td>
+		<td>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+		<td cellpadding="500" valign="top">
+			<table align="center">
+				<th>
+					regular
+				</th>
+			</table>
+			<table id="myTable" border='1' width="400">		
+				<th>Cycle Number</th>
+				<th>IF</th>
+				<th>ID</th>
+				<th>EX</th>
+				<th>MEM</th>
+				<th>WB</th>
+			</table>
+			
+		</td>
+		
 	</tr>
 </table>
 
