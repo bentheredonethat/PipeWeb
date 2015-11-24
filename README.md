@@ -19,3 +19,10 @@ handle producer vs. consumer in the stalls
 # then do stalls with forwarding
 implement logic
 
+Nick's BackLog:
+- PipeWeb 
+	- Example & Sample Inputs.
+	- Forward Logic
+	(EXTRAS)
+		- Frontend 
+		- Multiple Instruction input
