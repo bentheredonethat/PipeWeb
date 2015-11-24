@@ -91,7 +91,8 @@ function myCreateFunction(NOP) {
 				forwardpipe = forwardcalculateNewCycle(Instr1);
 			}
 			else{
-				alert(inputString + " is not an accepted instruction \n :(")
+				alert(inputString + " is not an accepted instruction \n :(");
+				return;
 			}
 		}
 		// Generate new table rows.
