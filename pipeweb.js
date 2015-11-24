@@ -394,8 +394,15 @@ function myCreateFunction(NOP) {
 		cycleCounter  +=1;
 	    var table = document.getElementById("myTable");	
 	    var Forwardtable = document.getElementById("myForwardTable");	
-	    
-	    var row = table.insertRow(-1);
+	    PopulateTheTable(table,cycleCounter, pipe);
+	    PopulateTheTable(Forwardtable, cycleCounter, pipe);
+	
+	});
+}
+
+// 
+function PopulateTheTable(MyTable, cycleCounter, pipe) {
+	 var row = MyTable.insertRow(-1);
 	    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
 		var cell0 = row.insertCell(0);
 		var cell1 = row.insertCell(1);
@@ -413,7 +420,4 @@ function myCreateFunction(NOP) {
 		cell3.innerHTML =  null != pipe.EX ? pipe.EX.operation:"";
 		cell4.innerHTML =  null != pipe.MEM? pipe.MEM.operation:"";
 		cell5.innerHTML =  null != pipe.WB ? pipe.WB.operation:"";
-		
-
-	});
 }
