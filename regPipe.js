@@ -45,7 +45,7 @@ var toIF = function(newStages, newInstruction){
 	}
 	else{
 		// if IF not available but instruction is waiting
-		if (newInstruction.operation != null){ pipelineQueue.push(newInstruction); }
+		if (newInstruction != null){ pipelineQueue.push(newInstruction); }
 	}
 	return newStages;	
 }

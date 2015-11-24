@@ -119,13 +119,9 @@ var forwardMEMtoWB = function(newStages){
 	// MEM -> WB
 
 	if (newStages["MEM"] != null){
-		
-		if (newStages["MEM"].operation == "SW"){
-			forwardRegChart[newStages["MEM"].destRegs] = 0;		
-		} 
 
-		// FORWARDING FOR LW
-		if (newStages["MEM"].operation == "LW"){
+		// FORWARDING FOR LW and SW
+		if (newStages["MEM"].operation == "LW" || newStages["MEM"].operation == "SW"){
 			forwardRegChart[newStages["MEM"].destRegs] = 0;		
 		}
 
