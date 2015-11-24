@@ -17,3 +17,6 @@ handle producer vs. consumer in the stalls
 
 
 # then do stalls with forwarding
+1. hook up table to old methods
+2. make new methods
+3. hook these up to table
