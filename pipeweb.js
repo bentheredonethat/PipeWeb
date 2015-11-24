@@ -328,7 +328,7 @@ var MEMtoWB = function(newStages, stages){
 	if (newStages["MEM"] != null){
 		
 		if (newStages["MEM"].operation == "SW"){
-			RegChart[newStages["WB"].destReg] = 0;		
+			RegChart[newStages["MEM"].destRegs] = 0;		
 		} 
 
 
