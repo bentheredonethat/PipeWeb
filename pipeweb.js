@@ -36,13 +36,17 @@ var validBEQFormat = function(op, regs){
 	if (op != "BEQ"){
 		return false;
 	}
-	if (regs.length != 2){
+	if (regs.length != 3){
 			return false;
 	}
 	for (var i = 0; i < 2; i++){
 		if (RegChart[regs[i]] === undefined){
 			return false;
 		}
+	}
+	// check if label 
+	if (RegChart[regs[2]] != undefined){
+		return false;
 	}
 	return true;
 }
