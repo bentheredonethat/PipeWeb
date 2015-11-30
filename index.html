@@ -85,14 +85,16 @@
 		<td cellpadding="50" valign="top" align="center">
 			<table align="center">				
 				<tr align="center">
-					<input type="text" id="myText" value="ADD $s1, $s2, $s3">	
-				</tr>
-
-				<tr align="center">
+					<button onclick="SkipToFinish()">SkipToFinish</button>
 					<br><br>
 					<button onclick="myCreateFunction(false)">Generate Next Cycle With Input</button>
 					<br><br>
 					<button onclick="myCreateFunction(true)">NOP</button>										
+					<br><br>
+				</tr>
+
+				<tr align="center">
+					<textarea rows="10" cols="20" id="myText" >ADD $s1, $s2, $s3</textarea>						
 				</tr>
 
 			</table>

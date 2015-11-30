@@ -71,6 +71,19 @@ function forwardcalculateNewCycle(newInstruction ){
 		return new Pipeline(newStages);
 }
 
+function SkipToFinish(){
+	alert("skip to finish");
+
+	// - parse multiple instructions
+	// 	separate by newline chars
+	// 	need a queue to read user input instructions
+	// 	first send first user input instruction into pipeline stages
+	// 	then enter the while loop where we check if there is anything still in the stages
+	// 	call both table-manipulation methods on each user input 
+
+
+}
+
 
 function myCreateFunction(NOP) {
 	$(document).ready(function () {
