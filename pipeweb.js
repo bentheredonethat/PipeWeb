@@ -41,8 +41,6 @@ var InstructionMap = {"ADD": 'R', "LW": 'load', "SW": "Store"};
 // each instruction has registers available in mem or wb, depending on their format
 var FormatDetailMap = { "ARITHMETIC":"wb", "load":"wb","Store":"mem"};
 
-
-
 function calculateNewCycle(newInstruction ){
 
 		// collection of new stages
@@ -71,63 +69,116 @@ function forwardcalculateNewCycle(newInstruction ){
 		return new Pipeline(newStages);
 }
 
-function pipeNotEmpty(){
+function pipeEmpty(){
 	
-	if (stages["IF"] == null){
+	if (stages["IF"] != null){
 		return false;
 	}
 
-if (stages["ID"] == null){
+	if (stages["ID"] != null){
 		return false;
 	}
 
-	if (stages["EX"] == null){
+	if (stages["EX"] != null){
 		return false;
 	}
 
-	if (stages["MEM"] == null){
+	if (stages["MEM"] != null){
 		return false;
 	}
 
-	if (stages["WB"] == null){
+	if (stages["WB"] != null){
 		return false;
 	}
-return true;
+	return true;
+
+}
+
+function forwardpipeEmpty(){
+	
+	if (forwardstages["IF"] != null){
+		return false;
+	}
+
+	if (forwardstages["ID"] != null){
+		return false;
+	}
+
+	if (forwardstages["EX"] != null){
+		return false;
+	}
+
+	if (forwardstages["MEM"] != null){
+		return false;
+	}
+
+	if (forwardstages["WB"] != null){
+		return false;
+	}
+	return true;
 
 }
 
 function SkipToFinish(){
 	
+	var pipe;
+	var forwardpipe;
+	
 
 	// - parse multiple instructions
 	var inputString = document.getElementById("myText").value;
 
+
+	if (inputString == ""){
+ 		alert("nothing to put into pipeline"); 
+ 		return;	
+ 	}
+
 	// 	separate by newline chars into queue
 	var inputQueue = inputString.split("\n");
 	
-	
-	if (inputQueue.length > 0){
-		// 	first send first user input instruction into pipeline stages
-		var firstInstruction = inputQueue[0];
-
-		delete inputQueue[0]; // pop first element
-
+	var isRegPipeEmpty = pipeEmpty();
+	var isForwardPipeEmpty = forwardpipeEmpty();
+	var queueEmpty = inputQueue.length > 0 ? false : true;
+	// 	then enter the while loop where we check if there is anything still in the stages
+	while (!isRegPipeEmpty || !isForwardPipeEmpty || !queueEmpty)
+	{
+		// 	call both table-manipulation methods on each user input 
 		
 
-		// 	then enter the while loop where we check if there is anything still in the stages
-		while (pipeNotEmpty()){
-			// 	call both table-manipulation methods on each user input 
+
+		// if no more input then send NOP
+		if (inputQueue.length < 1){
+			pipe = calculateNewCycle(null);
+			forwardpipe = forwardcalculateNewCycle(null);
 		}
+		else{
+			var inputString = inputQueue.shift();
+			var Instr1 = new Instruction(inputString);
+			if (Instr1.valid == true){
+				pipe = calculateNewCycle(Instr1);
+				forwardpipe = forwardcalculateNewCycle(Instr1);
+			}
 
-	
+			else{
+				alert(inputString + " is not an accepted instruction \n :(");
+				return;
+			}	
+		}
+		
+		queueEmpty = inputQueue.length > 0 ? false : true;
+		isRegPipeEmpty = pipeEmpty();
+		isForwardPipeEmpty = forwardpipeEmpty();
+
+		// Generate new table rows.
+		cycleCounter  +=1;
+	    var table = document.getElementById("myTable");	
+	    var Forwardtable = document.getElementById("myForwardTable");	
+	    PopulateTheTable(table,			cycleCounter, pipe);
+	    PopulateTheTable(Forwardtable, 	cycleCounter, forwardpipe);
 
 	}
-	else{
-		alert("nothing to put into pipeline");
-	}
-	
-
-
+	alert("done");
 }
 
 
