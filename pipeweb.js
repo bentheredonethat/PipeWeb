@@ -71,15 +71,61 @@ function forwardcalculateNewCycle(newInstruction ){
 		return new Pipeline(newStages);
 }
 
+function pipeNotEmpty(){
+	
+	if (stages["IF"] == null){
+		return false;
+	}
+
+if (stages["ID"] == null){
+		return false;
+	}
+
+	if (stages["EX"] == null){
+		return false;
+	}
+
+	if (stages["MEM"] == null){
+		return false;
+	}
+
+	if (stages["WB"] == null){
+		return false;
+	}
+return true;
+
+}
+
 function SkipToFinish(){
-	alert("skip to finish");
+	
 
 	// - parse multiple instructions
-	// 	separate by newline chars
-	// 	need a queue to read user input instructions
-	// 	first send first user input instruction into pipeline stages
-	// 	then enter the while loop where we check if there is anything still in the stages
-	// 	call both table-manipulation methods on each user input 
+	var inputString = document.getElementById("myText").value;
+
+	// 	separate by newline chars into queue
+	var inputQueue = inputString.split("\n");
+	
+	
+	if (inputQueue.length > 0){
+		// 	first send first user input instruction into pipeline stages
+		var firstInstruction = inputQueue[0];
+
+		delete inputQueue[0]; // pop first element
+
+		
+
+		// 	then enter the while loop where we check if there is anything still in the stages
+		while (pipeNotEmpty()){
+			// 	call both table-manipulation methods on each user input 
+		}
+
+	
+
+	}
+	else{
+		alert("nothing to put into pipeline");
+	}
+	
 
 
 }
@@ -128,8 +174,6 @@ function PopulateTheTable(MyTable, cycleCounter, pipe) {
 		var cell3 = row.insertCell(3);
 		var cell4 = row.insertCell(4);
 		var cell5 = row.insertCell(5);
-
-		//var pipe = calculateNewCycle(Instr1);
 
 		// Add some text to the new cells:
 		cell0.innerHTML = cycleCounter;
