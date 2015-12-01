@@ -13,13 +13,6 @@ Web Application that will illustrate pipeline diagrams in either a pipelined or 
 
 # Features Still In Development
 
-	- Frontend 
-	- Multiple Instruction input
-
-
-
-# TODOs
-examples
+	- Frontend
 	-- samples
-	-- video
-	-- maybe front end
+	-- video 
