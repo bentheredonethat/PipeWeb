@@ -223,7 +223,27 @@ function myCreateFunction(NOP) {
 	});
 }
 
-// 
+function clearTable(){
+	
+		var table = document.getElementById("myTable");	
+		var rowCount = table.rows.length;
+		
+		while (rowCount > 1){
+			table.deleteRow(rowCount -1 );	
+			rowCount  = rowCount - 1;
+		}
+
+
+		table = document.getElementById("myForwardTable");	
+		rowCount = table.rows.length;
+		
+		while (rowCount > 1){
+			table.deleteRow(rowCount -1 );	
+			rowCount  = rowCount - 1;
+		}
+}
+
+
 function PopulateTheTable(MyTable, cycleCounter, pipe) {
 	 var row = MyTable.insertRow(-1);
 	    // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
