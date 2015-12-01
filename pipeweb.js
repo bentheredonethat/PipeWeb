@@ -154,16 +154,25 @@ function SkipToFinish(){
 		}
 		else{
 			var inputString = inputQueue.shift();
-			var Instr1 = new Instruction(inputString);
-			if (Instr1.valid == true){
-				pipe = calculateNewCycle(Instr1);
-				forwardpipe = forwardcalculateNewCycle(Instr1);
-			}
 
+			// check if newline char only
+			if (inputString == ""){
+				pipe = calculateNewCycle(null);
+				forwardpipe = forwardcalculateNewCycle(null);
+			}
 			else{
-				alert(inputString + " is not an accepted instruction \n :(");
-				return;
-			}	
+				var Instr1 = new Instruction(inputString);
+				if (Instr1.valid == true){
+					pipe = calculateNewCycle(Instr1);
+					forwardpipe = forwardcalculateNewCycle(Instr1);
+				}
+
+				else{
+					alert(inputString + " is not an accepted instruction \n :(");
+					return;
+				}		
+			}
+			
 		}
 		
 		queueEmpty = inputQueue.length > 0 ? false : true;
@@ -178,7 +187,6 @@ function SkipToFinish(){
 	    PopulateTheTable(Forwardtable, 	cycleCounter, forwardpipe);
 
 	}
-	alert("done");
 }
 
 
