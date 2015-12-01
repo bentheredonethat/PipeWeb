@@ -227,7 +227,7 @@ function clearTable(){
 	
 		var table = document.getElementById("myTable");	
 		var rowCount = table.rows.length;
-		
+		cycleCounter = 0;
 		while (rowCount > 1){
 			table.deleteRow(rowCount -1 );	
 			rowCount  = rowCount - 1;
@@ -241,6 +241,8 @@ function clearTable(){
 			table.deleteRow(rowCount -1 );	
 			rowCount  = rowCount - 1;
 		}
+
+		
 }
 
 
