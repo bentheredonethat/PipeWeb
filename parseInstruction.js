@@ -118,6 +118,9 @@ var ParseInstructionString = function(str){
 	var OpAndRegs = {};
 	var operation = str.substr(0,str.indexOf(' ')); 
 
+	var n = str.indexOf('\n');
+	str = str.substring(0, n != -1 ? n : s.length);
+
 
 	var regs = str.substr(str.indexOf(' '));
 	regs = regs.replace(/ /gi,"");
