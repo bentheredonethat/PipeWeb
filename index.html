@@ -89,6 +89,24 @@
 		<td cellpadding="50" valign="top" align="center">
 			<table align="center">				
 				<tr align="center">
+					<button onclick="faq()">FAQ</button>
+					<script>
+					function faq() {
+						var msg = "";
+
+						msg += "Skip To Finish: take user input (single or multiple instructions accepted) and generate subsequent cycles until all the user-input instructions have progressed through each pipeline.\n\n";
+
+						msg += "Generate Next Cycle with Input: Using only the first instruction given, (separated by newline characters) generate next cycle using user-input instruction\n\n";
+
+						msg += "NOP: generate next cycle with no user input\n\n";
+
+						msg += "Clear Table: resets table back to cycle 0\n\n";
+
+					    alert(msg);
+					}
+					</script>
+
+					<br><br>
 					<button onclick="SkipToFinish()">Skip To Finish</button>
 					<br><br>
 					<button onclick="myCreateFunction(false)">Generate Next Cycle With Input</button>
