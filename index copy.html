@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>PipeWeb</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Custom styles for this template -->
+    <link href="css/carousel.css" rel="stylesheet">
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-inverse navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">PipeWeb</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+            
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+
+
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner" role="listbox">
+        <div class="item active">
+          <img class="first-slide" src="binary-code.jpg" alt="First slide">
+          <div class="container">
+            <div class="carousel-caption">
+              <h1>Welcome To PipeWeb</h1>
+              <p>PipeWeb is an intuitive way to follow a pipeline diagram and see how instructions are executed in a processor. With this web app you should be able to trace how a processor functions at each step and what values are currently being passed. Enjoy!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div><!-- /.carousel -->
+
+
+<!-- THIS IS PIPEWB WORK -->  
+
+    <div>
+
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+<script type="text/javascript" src="parseInstruction.js"></script>
+<script type="text/javascript" src="regPipe.js"></script>
+<script type="text/javascript" src="forwardPipe.js"></script>
+<script type="text/javascript" src="pipeweb.js"></script>
+
+<script type="text/javascript">
+  var cycleCounter = 0;
+  // collection of stages
+  var stages= {
+    "IF" : null,
+    "ID": null,
+    "EX": null,
+    "MEM": null,
+    "WB": null  
+  };
+
+  var forwardstages= {
+      "IF" : null,
+      "ID": null,
+      "EX": null,
+      "MEM": null,
+      "WB": null  
+    };
+
+
+  var pipelineQueue = [];
+  var forwardpipelineQueue = [];
+
+
+</script>
+<style type="text/css">
+  
+#footer {
+   position:absolute;
+   bottom:0;
+   width:99%;
+   height:60px;   /* Height of the footer */
+}
+</style>
+
+</head>
+
+<br><br><br>
+<div id="header" align="center">
+  <h1>WebPipe</h1>
+  <h3>A pipeline diagram generator for MIPS.</h3>
+</div>
+
+<body >
+<table  align="center">
+  <tr>
+    <tr>
+      
+    </tr>
+    <tr>
+      
+    </tr>
+    <td cellpadding="500" valign="top">
+      <table align="center">
+        <th>
+          forwarding
+        </th>
+        <tr>
+          
+        </tr>
+      </table>    
+      <table id="myForwardTable" border='1' width="400">
+        <tr>
+          <th>Cycle Number</th>
+          <th>IF</th>
+          <th>ID</th>
+          <th>EX</th>
+          <th>MEM</th>
+          <th>WB</th>
+        </tr>
+      </table>      
+    </td>
+    <td>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td cellpadding="50" valign="top" align="center">
+      <table align="center">        
+        <tr align="center">
+          <button onclick="faq()">FAQ</button>
+          <script>
+          function faq() {
+            var msg = "";
+
+            msg += "Skip To Finish: take user input (single or multiple instructions accepted) and generate subsequent cycles until all the user-input instructions have progressed through each pipeline.\n\n";
+
+            msg += "Generate Next Cycle with Input: Using only the first instruction given, (separated by newline characters) generate next cycle using user-input instruction\n\n";
+
+            msg += "NOP: generate next cycle with no user input\n\n";
+
+            msg += "Clear Table: resets table back to cycle 0\n\n";
+
+              alert(msg);
+          }
+          </script>
+
+          <br><br>
+          <button onclick="SkipToFinish()">Skip To Finish</button>
+          <br><br>
+          <button onclick="myCreateFunction(false)">Generate Next Cycle With Input</button>
+          <br><br>
+          <button onclick="myCreateFunction(true)">NOP</button>                   
+          <br><br>
+          <button onclick="clearTable()">Clear Table</button>
+          <br><br>
+        </tr>
+
+        <tr align="center">
+          <textarea rows="10" cols="20" id="myText" >ADD $s1, $s2, $s3</textarea>           
+        </tr>
+
+      </table>
+    </td>
+    <td>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td cellpadding="500" valign="top">
+      <table align="center">
+        <th>
+          regular
+        </th>
+      </table>
+      <table id="myTable" border='1' width="400">   
+        <th>Cycle Number</th>
+        <th>IF</th>
+        <th>ID</th>
+        <th>EX</th>
+        <th>MEM</th>
+        <th>WB</th>
+      </table>
+      
+    </td>
+    
+  </tr>
+
+</table>
+
+
+
+
+
+</body>
+    </div>
+
+
+
+<!-- END OF PIPEWEB WORK -->
+
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+      <hr class="featurette-divider">
+
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Current Commands<span class="text-muted"> and Registers</span></h2>
+          <p class="lead">We support R-Format, BEQ, LW and SW functions</p>
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <!-- /END THE FEATURETTES -->
+
+
+      <!-- FOOTER -->
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; PipeWeb by Ben, Marco, and Nick &middot; <a href="#">Privacy</a> &middot; <a href="#">Terms</a></p>
+      </footer>
+
+    </div><!-- /.container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  </body>
+</html>
