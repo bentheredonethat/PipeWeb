@@ -119,7 +119,7 @@ var ParseInstructionString = function(str){
 	var operation = str.substr(0,str.indexOf(' ')); 
 
 	var n = str.indexOf('\n');
-	str = str.substring(0, n != -1 ? n : s.length);
+	str = str.substring(0, n != -1 ? n : str.length);
 
 
 	var regs = str.substr(str.indexOf(' '));
